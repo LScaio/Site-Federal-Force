@@ -16,7 +16,7 @@ Todo texto, imagem e modelo vem do Drive. Nada foi inventado.
 
 | Pasta do Drive | Uso no site | Arquivo no código |
 | --- | --- | --- |
-| `Hero(Telainicial)` | Logo, mascote Fefo (`CorujaFederal.png`), CAD do robô (`CAD_objetos.obj` + `CAD_materiais.mtl`) | `src/content/drive.ts → hero` |
+| `Hero(Telainicial)` | Logo, mascote Fefo (`CorujaFederal.png`), CAD 3D do robô (`CAD3D`) | `src/content/drive.ts → hero` |
 | `Intro geral da equipe` | Quem Somos: texto + mosaico de fotos | `quemSomos`, `quemSomosTexto` |
 | `FRC` | Seção FRC: texto, logo, imagens de arenas/robôs/equipes, vídeo do YouTube | `frc`, `frcTexto` |
 | `Equipe Rebuilt 2026` | Mini-site REBUILT: texto, fotos, **moodboard** (paleta, tipografia, linguagem visual) | `rebuilt`, `rebuiltTexto`, `src/index.css` (`rb-*`) |
@@ -36,16 +36,20 @@ VITE_DRIVE_SOURCE=local npm run build    # passa a usar /drive/<id>.<ext>
 
 ## CAD 3D (abertura, Hero e Visualizador usam o MESMO arquivo)
 
-O Drive tem o CAD em OBJ (~900 MB), não em GLB. O site espera o GLB otimizado em `public/models/federal-robot.glb`:
+A fonte é o arquivo `Hero(Telainicial)/CAD3D` do Drive (~103 MB, sem extensão). O site espera o GLB otimizado em `public/models/federal-robot.glb`:
 
 ```bash
-npm run sync:drive -- --cad     # baixa CAD_objetos.obj + CAD_materiais.mtl para cad-source/
-npm run cad:convert             # OBJ → GLB (obj2gltf) → otimizado (gltf-transform: simplify + meshopt + WebP)
+npm run sync:drive -- --cad     # baixa o CAD3D para cad-source/
+npm run cad:convert             # detecta o formato e gera o GLB otimizado (simplify + meshopt)
 # npm run cad:convert -- --keep-parts   # preserva hierarquia/nomes para fichas por subsistema
 # npm run cad:convert -- --ratio 0.15   # simplificação mais agressiva
+# npm run cad:convert -- --z-up         # se o robô aparecer deitado (exportação com Z para cima)
+git add public/models/federal-robot.glb
 ```
 
-Meta: GLB < 8 MB. Enquanto o arquivo não existe, a cena mostra uma **silhueta técnica provisória** (wireframe) e o visualizador indica `CAD · aguardando federal-robot.glb`.
+O conversor identifica o formato pelo conteúdo: GLB (inclusive já comprimido com Draco/meshopt), glTF, OBJ, STL ou ZIP contendo um deles. FBX/STEP não são suportados — nesse caso, exporte como GLB. Meta: GLB < 8 MB.
+
+Enquanto o GLB não existe, a cena mostra uma **silhueta técnica provisória** (wireframe) e o visualizador indica `CAD · aguardando federal-robot.glb`.
 
 ### Fichas técnicas de subsistemas (futuro)
 
@@ -60,7 +64,7 @@ Estes itens pedidos no briefing **não existem no Drive**. O código está pront
 - **Vídeos das temporadas** — não há vídeos nas pastas Rebuilt/Reefscape (o único vídeo é o link da FRC).
 - **Imagens dos projetos sociais** — as subpastas têm só o `.txt`. Os cards usam composição tipográfica.
 - **CAD da Reefscape (Griffo)** — não há CAD na pasta; o visualizador fica na temporada REBUILT.
-- **GLB** — ver seção CAD acima.
+- **GLB** — o `CAD3D` precisa ser convertido (ver seção CAD acima).
 - Revisão de texto sugerida no Drive (transcrito literalmente): em `Nossa temporada REEFSCAPE (2025).txt`, "Ele foi pensado para Climbar ele conseguia alcançar o último nível, sendo seu ponto mais forte" e "foi a prova de que uma estreia histórica em que…".
 
 ## Performance e acessibilidade

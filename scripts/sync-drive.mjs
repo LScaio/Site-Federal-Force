@@ -4,7 +4,7 @@
  * src/content/drive.ts (pasta pública, sem credenciais).
  *
  *   npm run sync:drive            → imagens para public/drive/<id>.<ext>
- *   npm run sync:drive -- --cad   → também o CAD (OBJ/MTL da Hero) para cad-source/
+ *   npm run sync:drive -- --cad   → também o CAD 3D da Hero (arquivo "CAD3D") para cad-source/
  *
  * Depois use VITE_DRIVE_SOURCE=local para servir as imagens localmente.
  */
@@ -52,9 +52,11 @@ await mkdir(path.join(root, 'public/drive'), { recursive: true })
 for (const e of images) await download(e, path.join(root, 'public/drive', `${e.id}.${ext(e.name)}`))
 
 if (withCad) {
-  const cad = entries.filter((e) => /^CAD_/.test(e.name))
+  const cad = entries.find((e) => e.name === 'CAD3D')
+  if (!cad) throw new Error('Entrada CAD3D não encontrada em src/content/drive.ts')
   await mkdir(path.join(root, 'cad-source'), { recursive: true })
-  for (const e of cad) await download(e, path.join(root, 'cad-source', e.name))
+  // O arquivo não tem extensão no Drive; o formato é detectado em `npm run cad:convert`.
+  await download(cad, path.join(root, 'cad-source', 'CAD3D'))
 }
 
 console.log(`\n✓ ${images.length} imagens${withCad ? ' + CAD' : ''} sincronizadas do Drive.`)

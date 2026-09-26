@@ -1,7 +1,7 @@
 /**
  * Modelo único do robô — o MESMO arquivo é usado na abertura, na Hero e no
- * Visualizador CAD. Gerado a partir de "Hero(Telainicial)/CAD_objetos.obj"
- * (+ CAD_materiais.mtl) do Drive por `npm run cad:convert`.
+ * Visualizador CAD. Gerado a partir de "Hero(Telainicial)/CAD3D" do Drive
+ * por `npm run sync:drive -- --cad && npm run cad:convert`.
  */
 export const ROBOT_GLB_URL = '/models/federal-robot.glb'
 

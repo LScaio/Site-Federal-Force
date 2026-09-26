@@ -21,8 +21,8 @@ export const DRIVE_ROOT_ID = '179G0wzGuSX73htOh8Kn2-ndZZP9iAn9R'
 export const hero = {
   logo: f('1rjcPBt0-UpOM_9zLOQZn2-DQU72SIWFC', 'LogoFederal2.jpg'),
   fefo: f('1FiddOp3MBv_U3Tm1q6CMSFmFKp4I3Axa', 'CorujaFederal.png', 'image/png'),
-  cadObj: f('1gjTfuh0bEVKvALcwKUuRD6RZVwMw-7Rv', 'CAD_objetos.obj', 'model/obj'),
-  cadMtl: f('1yfDXlWxs-mtd2A2e5zCvc0nA3fZi040i', 'CAD_materiais.mtl', 'model/mtl'),
+  /** Modelo 3D do robô (arquivo "CAD3D", sem extensão, ~103 MB) — fonte do federal-robot.glb. */
+  cad: f('1SibU3tx3_0jstrymGGpW_Lq6KwyLBzvM', 'CAD3D', 'model/unknown'),
 }
 
 /** Pasta: Intro geral da equipe (Quem Somos) */
