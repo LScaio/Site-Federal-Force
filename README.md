@@ -10,6 +10,16 @@ npm run dev          # http://localhost:5173
 npm run build        # typecheck + build de produção em dist/
 ```
 
+## Publicação no GitHub Pages
+
+O workflow `.github/workflows/deploy-pages.yml` faz o build e publica o site a cada push na branch principal: baixa as imagens do Drive, gera o site com o caminho do repositório e envia para o Pages.
+
+1. **Settings → General → Repository name:** `SiteFederalForce` (o endereço do site segue o nome do repositório).
+2. **Settings → Pages → Build and deployment → Source:** `GitHub Actions`.
+3. Faça um push (ou rode o workflow em **Actions → Deploy GitHub Pages → Run workflow**).
+
+Endereço final: **https://lscaio.github.io/SiteFederalForce/** — e as seções, por exemplo, `https://lscaio.github.io/SiteFederalForce/reefscape/galeria`.
+
 ## Endereços das seções
 
 Cada seção tem um endereço próprio. Abrir um deles pula a abertura e rola direto até a seção; durante a navegação a URL acompanha a seção visível, e voltar/avançar funciona. Maiúsculas e acentos são aceitos (`/Reefscape/Galeria`, `/rebuilt/Robô`).
@@ -25,7 +35,7 @@ Cada seção tem um endereço próprio. Abrir um deles pula a abertura e rola di
 | `/alem-da-arena` (ou `/projetos`) | Projetos sociais |
 | `/final` (ou `/contato`) | Cena final + rodapé |
 
-Rotas definidas em `src/lib/routes.ts`. Como é um SPA, o servidor precisa devolver `index.html` para qualquer caminho: o projeto já inclui `public/_redirects` (Netlify), `vercel.json` (Vercel) e gera `dist/404.html` no build (GitHub Pages). Para hospedar em subpasta: `BASE_PATH=/Site-Federal-Force/ npm run build`.
+Rotas definidas em `src/lib/routes.ts`. Como é um SPA, o servidor precisa devolver `index.html` para qualquer caminho: o projeto já inclui `public/_redirects` (Netlify), `vercel.json` (Vercel) e gera `dist/404.html` no build (GitHub Pages). Para hospedar em subpasta: `BASE_PATH=/SiteFederalForce/ npm run build`.
 
 ## Fefo (mascote)
 
