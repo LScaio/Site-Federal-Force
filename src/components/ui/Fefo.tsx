@@ -1,96 +1,161 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, useMotionValue, useSpring, useTransform, useVelocity } from 'framer-motion'
 import { useIntroPhase, useScene } from '../../lib/sceneStore'
 import { useReducedMotion } from '../../lib/useReducedMotion'
 import { driveUrl } from '../../lib/driveUrl'
-import { hero } from '../../content/drive'
+import { fefoVooDireita, fefoVooEsquerda } from '../../content/drive'
+import { FefoFlight, type Dir, type Target } from './fefoFlight'
 
 /**
- * Fefo — mascote da Federal Force (Drive: Hero(Telainicial)/CorujaFederal.png).
+ * Fefo — mascote da Federal Force, animado quadro a quadro com os frames de
+ * Hero(Telainicial)/AnimaçãoCorujaDireita e /AnimaçãoCorujaEsquerda.
  *
- * Elemento narrativo que acompanha o scroll: atravessa a Hero ao final da
- * abertura, pousa perto de títulos (elementos com `data-fefo-perch="<cena>"`),
- * observa o robô no Visualizador CAD e, nas cenas sem ponto de pouso,
- * recolhe-se discretamente ao canto da tela.
+ * Atravessa a Hero ao fim da abertura e pousa sobre o robô; durante a rolagem
+ * decola, voa em arco e pousa no fim da primeira linha dos títulos marcados com
+ * <Perch id="<cena>" />. Pousado, acompanha o título; só voa quando o poleiro
+ * muda (outra cena, ou o título saiu da tela e ele se recolhe ao canto).
+ * A física/máquina de estados está em ./fefoFlight.ts.
  */
+
+const RATIO = 341 / 384
+
+function loadFrames(files: typeof fefoVooDireita) {
+  return Promise.all(
+    files.map(
+      (f) =>
+        new Promise<HTMLImageElement>((resolve, reject) => {
+          const img = new Image()
+          img.decoding = 'async'
+          img.referrerPolicy = 'no-referrer'
+          img.onload = () => resolve(img)
+          img.onerror = reject
+          img.src = driveUrl(f, 384)
+        }),
+    ),
+  )
+}
+
 export function Fefo() {
   const scene = useScene()
   const intro = useIntroPhase()
   const reduced = useReducedMotion()
-  const [size, setSize] = useState(88)
-  const [resting, setResting] = useState(false)
-  const [loaded, setLoaded] = useState(false)
-
-  const tx = useMotionValue(-200)
-  const ty = useMotionValue(260)
-  const spring = reduced ? { stiffness: 1000, damping: 100 } : { stiffness: 38, damping: 16, mass: 1.1 }
-  const x = useSpring(tx, spring)
-  const y = useSpring(ty, spring)
-  const vx = useVelocity(x)
-  const rotate = useTransform(vx, [-1400, 0, 1400], [-14, 0, 14], { clamp: true })
+  const wrap = useRef<HTMLDivElement>(null)
+  const canvas = useRef<HTMLCanvasElement>(null)
+  const [frames, setFrames] = useState<Record<Dir, HTMLImageElement[]> | null>(null)
 
   const sceneRef = useRef(scene)
   sceneRef.current = scene
 
   useEffect(() => {
-    const onResize = () => setSize(window.innerWidth < 768 ? 54 : 88)
-    onResize()
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+    let alive = true
+    Promise.all([loadFrames(fefoVooDireita), loadFrames(fefoVooEsquerda)])
+      .then(([dir, esq]) => alive && setFrames({ dir, esq }))
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
   }, [])
 
   useEffect(() => {
-    if (intro === 'intro') return
-    let raf = 0
-    let lastResting: boolean | null = null
-    const loop = () => {
+    if (!frames || intro === 'intro') return
+    const el = wrap.current
+    const cv = canvas.current
+    const ctx = cv?.getContext('2d')
+    if (!el || !cv || !ctx) return
+
+    let W = 0
+    let H = 0
+    let drawn = ''
+    const resize = () => {
+      W = window.innerWidth < 768 ? 74 : 112
+      H = Math.round(W * RATIO)
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      cv.width = Math.round(W * dpr)
+      cv.height = Math.round(H * dpr)
+      cv.style.width = `${W}px`
+      cv.style.height = `${H}px`
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      drawn = ''
+    }
+    resize()
+
+    const sim = new FefoFlight(-W, window.innerHeight * 0.3, Math.max(70, W * 0.7))
+    const clampX = (px: number, vw: number) => Math.min(Math.max(px, W / 2 + 8), vw - W / 2 - 8)
+
+    /** Alvo = ponto onde os pés do Fefo tocam (base central do sprite). */
+    const findTarget = (): Target => {
       const vw = window.innerWidth
       const vh = window.innerHeight
+      const key = `perch:${sceneRef.current}`
       const perch = document.querySelector<HTMLElement>(`[data-fefo-perch="${sceneRef.current}"]`)
       const r = perch?.getBoundingClientRect()
-      const onScreen = r && r.top > size * 0.8 && r.top < vh - 20 && r.left > -40 && r.left < vw
-      let rest: boolean
-      if (onScreen && r) {
-        const left = Math.min(Math.max(r.left - size * 0.35, 12), vw - size - 12)
-        tx.set(left)
-        ty.set(r.top - size * 0.92)
-        rest = false
-      } else {
-        tx.set(vw - size - (vw < 768 ? 14 : 28))
-        ty.set(vh - size - (vw < 768 ? 14 : 28))
-        rest = true
+      const visible = perch && r && r.top > vh * 0.14 && r.top < vh * 0.9 && r.left > -20 && r.left < vw + 20
+      if (visible) {
+        if (perch.dataset.fefoPerch === 'hero') return { key, x: clampX(r.left, vw), y: r.top }
+        // Títulos: pousa sobre o fim da PRIMEIRA linha (não cobre o texto).
+        // O marcador <Perch> fica na linha de base da última linha com altura de
+        // ~maiúscula; deslocando pela distância entre linhas obtemos o topo das
+        // letras da 1ª linha — funciona com qualquer fonte (Bowlby, Rubik…).
+        const range = document.createRange()
+        range.selectNodeContents(perch.parentElement ?? perch)
+        const rects = [...range.getClientRects()].filter((q) => q.width > 1)
+        if (rects.length) {
+          const firstTop = Math.min(...rects.map((q) => q.top))
+          const lastTop = Math.max(...rects.filter((q) => q.top <= r.top + 1).map((q) => q.top), firstTop)
+          const line = rects.filter((q) => q.top - firstTop < 6)
+          const right = Math.max(...line.map((q) => q.right))
+          const y = r.top - (lastTop - firstTop)
+          // Sob o header fixo não dá para pousar: recolhe-se ao canto.
+          if (y - H > 76) return { key, x: clampX(right - W * 0.32, vw), y }
+        } else if (r.top - H > 76) return { key, x: clampX(r.left, vw), y: r.top }
       }
-      if (rest !== lastResting) {
-        lastResting = rest
-        setResting(rest)
-      }
-      raf = requestAnimationFrame(loop)
+      return { key: 'rest', x: vw - W / 2 - (vw < 768 ? 12 : 26), y: vh - (vw < 768 ? 12 : 22) }
     }
-    raf = requestAnimationFrame(loop)
-    return () => cancelAnimationFrame(raf)
-  }, [intro, size, tx, ty])
+
+    const draw = () => {
+      const key = `${sim.dir}${sim.frame}`
+      if (key === drawn) return
+      drawn = key
+      ctx.clearRect(0, 0, W, H)
+      ctx.drawImage(frames[sim.dir][sim.frame], 0, 0, W, H)
+    }
+
+    let last = performance.now()
+    let raf = 0
+    const tick = (now: number) => {
+      const dt = Math.min((now - last) / 1000, 0.25)
+      last = now
+      const t = findTarget()
+      if (reduced) sim.snap(t)
+      else sim.update(dt, t)
+
+      const bob = sim.mode === 'perched' && !reduced ? Math.sin(now / 700) * 1.2 : 0
+      const tilt = sim.mode === 'perched' ? 0 : sim.tilt
+      el.style.transform = `translate3d(${(sim.x - W / 2).toFixed(1)}px, ${(sim.y + sim.arc - H + bob).toFixed(1)}px, 0) rotate(${tilt.toFixed(2)}deg)`
+      el.style.opacity = '1'
+      el.dataset.mode = sim.mode
+      draw()
+      raf = requestAnimationFrame(tick)
+    }
+
+    window.addEventListener('resize', resize)
+    raf = requestAnimationFrame(tick)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('resize', resize)
+    }
+  }, [frames, intro, reduced])
 
   if (intro === 'intro') return null
 
   return (
-    <motion.div
+    <div
+      ref={wrap}
       aria-hidden
-      className="pointer-events-none fixed left-0 top-0 z-[45]"
-      style={{ x, y, rotate, width: size, height: size }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: loaded ? (resting ? 0.9 : 1) : 0, scale: resting ? 0.82 : 1 }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      data-fefo
+      className="pointer-events-none fixed left-0 top-0 z-[45] opacity-0 transition-opacity duration-500 will-change-transform"
+      style={{ transformOrigin: '50% 100%' }}
     >
-      <motion.img
-        src={driveUrl(hero.fefo, 240)}
-        alt=""
-        referrerPolicy="no-referrer"
-        onLoad={() => setLoaded(true)}
-        className="h-full w-full object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.55)]"
-        animate={reduced ? undefined : { y: [0, -6, 0] }}
-        transition={reduced ? undefined : { duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-        draggable={false}
-      />
-    </motion.div>
+      <canvas ref={canvas} className="block drop-shadow-[0_10px_18px_rgba(0,0,0,0.5)]" />
+    </div>
   )
 }

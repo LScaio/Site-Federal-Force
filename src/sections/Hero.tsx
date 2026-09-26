@@ -7,6 +7,7 @@ import { DriveImage } from '../components/ui/DriveImage'
 import { hero } from '../content/drive'
 import { slogan } from '../content/texts'
 import { useNearViewport } from '../lib/useInViewOnce'
+import { isDeepLink } from '../lib/routes'
 
 const HeroScene = lazy(() => import('../components/three/HeroScene'))
 
@@ -136,6 +137,16 @@ export default function Hero() {
         .to(motion, { parallax: 1, duration: 1.2 }, 'reveal+=0.8')
         .to('.hero-reveal', { autoAlpha: 1, y: 0, duration: 1.1, stagger: 0.08, ease: 'expo.out' }, 'reveal+=0.7')
         .set('.intro-layer', { autoAlpha: 0 })
+
+      // Link direto para uma seção (ex.: /reefscape/galeria): sem abertura.
+      // Marca como pronto antes de saltar, senão o ponto de espera pelo CAD
+      // (label "enter") pausaria a timeline no meio do salto.
+      if (isDeepLink) {
+        readyRef.current = true
+        tl.progress(1)
+        setIntroPhase('done')
+        lockScroll(false)
+      }
     }, el)
 
     // Parallax de scroll: o robô sobe e gira levemente ao sair da Hero.
@@ -200,6 +211,13 @@ export default function Hero() {
           <HeroScene motion={motion} active={near} blurNode={blurNode} onProgress={onProgress} />
         </Suspense>
       </div>
+
+      {/* Poleiro do Fefo sobre o robô (acompanha o enquadramento de cada layout) */}
+      <span
+        data-fefo-perch="hero"
+        aria-hidden
+        className="pointer-events-none absolute left-[36%] top-[23%] z-0 h-px w-px md:left-[64%] md:top-[45.5%]"
+      />
 
       {/* Camada da abertura */}
       {!reduced && phase !== 'done' && (

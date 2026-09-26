@@ -7,6 +7,7 @@ import { reefscapeTexto } from '../../content/texts'
 import { SeasonSubnav } from '../season/SeasonSubnav'
 import { HorizontalGallery } from '../season/HorizontalGallery'
 import { useReducedMotion } from '../../lib/useReducedMotion'
+import { Perch } from '../../components/ui/Perch'
 
 /**
  * TEMPORADA REEFSCAPE (2025) — identidade definida pelo moodboard
@@ -160,7 +161,7 @@ export default function Reefscape() {
             className="rf-title relative mt-8 text-[clamp(3.2rem,11.5vw,9.5rem)] text-rf-coral [-webkit-text-stroke:3px_#111]"
           >
             REEFSCAPE
-            <span data-fefo-perch="reefscape" className="absolute -top-2 right-[6%] h-px w-px" aria-hidden />
+            <Perch id="reefscape" />
           </motion.h2>
           <div className="mt-12 grid items-end gap-12 lg:grid-cols-[1fr_1.1fr]">
             <Reveal delay={0.15}>

@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion'
 import { fraseFinal } from '../content/texts'
 import { useReducedMotion } from '../lib/useReducedMotion'
+import { Perch } from '../components/ui/Perch'
 
 function Word({ word, range, progress }: { word: string; range: [number, number]; progress: MotionValue<number> }) {
   const opacity = useTransform(progress, range, [0.12, 1])
@@ -42,7 +43,7 @@ export default function Finale() {
               </span>
             )
           })}
-          <span data-fefo-perch="final" className="absolute -top-4 right-[10%] h-px w-px" aria-hidden />
+          <Perch id="final" />
         </p>
       </div>
     </section>

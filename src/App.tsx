@@ -6,6 +6,7 @@ import { Hud, type SceneLink } from './components/ui/Hud'
 import { Fefo } from './components/ui/Fefo'
 import { initSmoothScroll, ScrollTrigger } from './lib/scroll'
 import { setScene } from './lib/sceneStore'
+import { useRouteSync } from './lib/useRouteSync'
 import { parceiros } from './content/texts'
 
 // Code splitting: cenas abaixo da dobra carregam em paralelo durante a abertura.
@@ -71,6 +72,7 @@ export default function App() {
     void import('./components/three/HeroScene')
   }, [])
   useSceneDirector()
+  useRouteSync()
 
   return (
     <>

@@ -8,6 +8,7 @@ import { SeasonSubnav } from '../season/SeasonSubnav'
 import { HorizontalGallery } from '../season/HorizontalGallery'
 import { useNearViewport } from '../../lib/useInViewOnce'
 import { Arch, Bricks, Gear, Hammer } from './icons'
+import { Perch } from '../../components/ui/Perch'
 
 const CadViewer = lazy(() => import('../../components/three/CadViewer'))
 
@@ -108,7 +109,7 @@ export default function Rebuilt() {
           className="rb-title relative mt-8 text-[clamp(4rem,14.5vw,11.5rem)] text-rb-laranja [-webkit-text-stroke:3px_#111] [text-shadow:8px_8px_0_#111]"
         >
           REBUILT
-          <span data-fefo-perch="rebuilt" className="absolute -top-2 right-[8%] h-px w-px" aria-hidden />
+          <Perch id="rebuilt" />
         </motion.h2>
         <div className="mt-12 grid items-end gap-12 lg:grid-cols-[1fr_1.1fr]">
           <div>
@@ -271,7 +272,7 @@ export default function Rebuilt() {
               <Label>07 · Visualizador CAD 3D</Label>
               <h3 className="rb-title relative mt-6 text-[clamp(2.6rem,6vw,4.8rem)] text-rb-laranja">
                 Explore o robô
-                <span data-fefo-perch="rebuilt-cad" className="absolute -top-2 right-0 h-px w-px" aria-hidden />
+                <Perch id="rebuilt-cad" />
               </h3>
             </div>
             <p className="max-w-xs font-mono text-xs uppercase tracking-[0.16em] text-rb-areia/70">Modelo CAD do Drive · Hero(Telainicial)</p>

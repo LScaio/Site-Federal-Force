@@ -10,6 +10,27 @@ npm run dev          # http://localhost:5173
 npm run build        # typecheck + build de produção em dist/
 ```
 
+## Endereços das seções
+
+Cada seção tem um endereço próprio. Abrir um deles pula a abertura e rola direto até a seção; durante a navegação a URL acompanha a seção visível, e voltar/avançar funciona. Maiúsculas e acentos são aceitos (`/Reefscape/Galeria`, `/rebuilt/Robô`).
+
+| Endereço | Seção |
+| --- | --- |
+| `/` | Abertura + Hero |
+| `/quem-somos` | Quem Somos |
+| `/frc` | O que é a FRC |
+| `/rebuilt` · `/rebuilt/historia` · `/desafio` · `/robo` · `/estrategia` · `/resultados` · `/galeria` · `/cad` | Temporada Rebuilt |
+| `/reefscape` · `/reefscape/historia` · `/desafio` · `/robo` · `/estrategia` · `/resultados` · `/galeria` | Temporada Reefscape |
+| `/evolucao` | Nossa Evolução |
+| `/alem-da-arena` (ou `/projetos`) | Projetos sociais |
+| `/final` (ou `/contato`) | Cena final + rodapé |
+
+Rotas definidas em `src/lib/routes.ts`. Como é um SPA, o servidor precisa devolver `index.html` para qualquer caminho: o projeto já inclui `public/_redirects` (Netlify), `vercel.json` (Vercel) e gera `dist/404.html` no build (GitHub Pages). Para hospedar em subpasta: `BASE_PATH=/Site-Federal-Force/ npm run build`.
+
+## Fefo (mascote)
+
+Animação quadro a quadro com os frames de `Hero(Telainicial)/AnimaçãoCorujaDireita` e `/AnimaçãoCorujaEsquerda` (01 pousado · 02–03 decolagem · 04–08 voo · 09–12 pouso). Ele atravessa a Hero e pousa sobre o robô; na rolagem, decola, voa em arco e pousa no fim da primeira linha dos títulos marcados com `<Perch id="…" />`. Pousado, acompanha o título; só voa quando muda de poleiro. Física e máquina de estados em `src/components/ui/fefoFlight.ts`, validadas por `npm run test:fefo`.
+
 ## Fonte única de conteúdo: Drive "Dados_Site_Federal"
 
 Todo texto, imagem e modelo vem do Drive. Nada foi inventado.

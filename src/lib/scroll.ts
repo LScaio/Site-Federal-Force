@@ -2,6 +2,7 @@ import Lenis from 'lenis'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { prefersReducedMotion } from './useReducedMotion'
+import { hrefFor } from './routes'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -26,11 +27,18 @@ export function lockScroll(locked: boolean) {
   document.documentElement.style.overflow = locked ? 'hidden' : ''
 }
 
-export function scrollToId(id: string) {
+export function scrollToId(id: string, { push = true, immediate = false } = {}) {
   const el = document.getElementById(id)
-  if (!el) return
-  if (lenis) lenis.scrollTo(el, { offset: 0, duration: 1.6 })
-  else el.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+  if (!el) return false
+  const href = hrefFor(id)
+  if (push && href && href !== window.location.pathname) history.pushState({ id }, '', href)
+  if (lenis) {
+    // a altura da página muda enquanto as cenas lazy carregam: atualiza o limite do Lenis
+    lenis.resize()
+    lenis.scrollTo(el, { offset: 0, duration: 1.6, immediate, force: true })
+  }
+  else el.scrollIntoView({ behavior: immediate || prefersReducedMotion() ? 'auto' : 'smooth' })
+  return true
 }
 
 export { gsap, ScrollTrigger }

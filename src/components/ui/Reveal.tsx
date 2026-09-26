@@ -1,5 +1,6 @@
 import { motion, type HTMLMotionProps } from 'framer-motion'
 import { useReducedMotion } from '../../lib/useReducedMotion'
+import { Perch } from './Perch'
 
 /** Entrada suave de elementos ao cruzar a viewport. */
 export function Reveal({
@@ -47,7 +48,7 @@ export function SceneTitle({
       <Reveal delay={0.08}>
         <h2 className="relative font-display text-[clamp(2.4rem,5.6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
           {children}
-          {perch && <span data-fefo-perch={perch} className="absolute -top-2 right-0 inline-block h-px w-px" aria-hidden />}
+          {perch && <Perch id={perch} />}
         </h2>
       </Reveal>
     </div>

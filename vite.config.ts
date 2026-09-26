@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
+  // Hospedagem em subpasta (ex.: GitHub Pages): BASE_PATH=/Site-Federal-Force/ npm run build
+  base: process.env.BASE_PATH ?? '/',
   plugins: [react(), tailwindcss()],
   build: {
     target: 'es2022',

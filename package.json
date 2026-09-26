@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node -e \"require('fs').copyFileSync('dist/index.html','dist/404.html')\"",
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "sync:drive": "node scripts/sync-drive.mjs",
-    "cad:convert": "node scripts/convert-cad.mjs"
+    "cad:convert": "node scripts/convert-cad.mjs",
+    "test:fefo": "node --experimental-strip-types --no-warnings scripts/test-fefo.mts"
   },
   "dependencies": {
     "@fontsource-variable/inter-tight": "^5.3.0",

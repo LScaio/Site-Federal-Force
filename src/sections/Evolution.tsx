@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion'
 import { useReducedMotion } from '../lib/useReducedMotion'
+import { Perch } from '../components/ui/Perch'
 
 /**
  * NOSSA EVOLUÇÃO — pausa narrativa entre as temporadas e os projetos sociais.
@@ -91,7 +92,7 @@ export default function Evolution() {
           </div>
           <h2 className="relative max-w-3xl font-display text-[clamp(2.4rem,5.6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.035em]">
             Nossa Evolução
-            <span data-fefo-perch="evolucao" className="absolute -top-2 right-0 h-px w-px md:right-auto md:left-[9.5em]" aria-hidden />
+            <Perch id="evolucao" />
           </h2>
 
           <div className="relative mt-16 md:mt-24">

@@ -31,6 +31,40 @@ export const hero = {
   cadStl: f('1LB6MBACM4FQ2mHx5I28aEbvlJhG7juOp', 'CAAD3D', 'model/robot-stl'),
 }
 
+/**
+ * Pasta: Hero(Telainicial)/AnimaçãoCorujaDireita e /AnimaçãoCorujaEsquerda —
+ * 12 frames do Fefo (384×341, PNG transparente) em cada direção:
+ * 01 pousado · 02–03 decolagem · 04–08 voo · 09–11 pouso · 12 pousado.
+ */
+export const fefoVooDireita: DriveFile[] = [
+  f('1zOXDKheewpOhZhh87U0oC6XgRi0Hny-K', 'fefo_frame_01.png', 'image/png'),
+  f('1hoVExFxGTNKZHa-M7_5AYwGKKOa5-_7M', 'fefo_frame_02.png', 'image/png'),
+  f('1aPPWQvy4atE6oDCsoki4fOpx-CX7FPLZ', 'fefo_frame_03.png', 'image/png'),
+  f('1F9fSosdPnx_YQk8yiJgVhsShK7ulGLqC', 'fefo_frame_04.png', 'image/png'),
+  f('1FyrxDJIdi5O3bjz2yB1wQtLuqzxeVCYW', 'fefo_frame_05.png', 'image/png'),
+  f('1TwQeQMDA6hcgvzhBW9TBWy8Ayzk8FJE_', 'fefo_frame_06.png', 'image/png'),
+  f('1RSCNHoyporRqzCBvLNVf1JwBbl3BBQsW', 'fefo_frame_07.png', 'image/png'),
+  f('1vfMWhN0RlHKft8Ltx3rdFZ9OH3OUbu1G', 'fefo_frame_08.png', 'image/png'),
+  f('1InV-Q_8DBQ12BUrqh0pspiZJECdPk01Q', 'fefo_frame_09.png', 'image/png'),
+  f('1ZSllQ3HqA3V_xsYzIdej48T4uk8NwSEh', 'fefo_frame_10.png', 'image/png'),
+  f('1KrC5MPMlr-YKZhrz1B5g0nA6p1OnnxFj', 'fefo_frame_11.png', 'image/png'),
+  f('1Jp8QKfJyeoC3paD1BuYICj4eVigkuOEB', 'fefo_frame_12.png', 'image/png'),
+]
+export const fefoVooEsquerda: DriveFile[] = [
+  f('1OryYtSkVxtCvwhcD4QiWXN4uUeHfZ6du', 'fefo_frame_01.png', 'image/png'),
+  f('1q7LRZIKrq89m5E2SRjRgbHPj1iBqBne1', 'fefo_frame_02.png', 'image/png'),
+  f('1caOBniou8w59_g2g3YARC9d_f4Z9B4oU', 'fefo_frame_03.png', 'image/png'),
+  f('1ZHxsCpmkmkgTC9_yH4YBEbVKceJhCAVT', 'fefo_frame_04.png', 'image/png'),
+  f('1OazvNlfHKHeFeFcuqodrmHazZRkPt-oE', 'fefo_frame_05.png', 'image/png'),
+  f('1qSl6_qp4zbOdpioiL1AVAW0u79EosXkv', 'fefo_frame_06.png', 'image/png'),
+  f('1UmcL-uSpWwTgqP4hcv8M6ju_4EkCsw4E', 'fefo_frame_07.png', 'image/png'),
+  f('1jMv4PC_LZ8AAPDsOKoY5kLdx2TmB0gfo', 'fefo_frame_08.png', 'image/png'),
+  f('1VMaLaYJBhlIcespoKAbwIr7aHiiwFw9j', 'fefo_frame_09.png', 'image/png'),
+  f('1QBbWh9nMarzdgGBLps_NHSlnSQDRNReJ', 'fefo_frame_10.png', 'image/png'),
+  f('1TZdavVZgjwoOFXhxY72oIcM26AVTco-U', 'fefo_frame_11.png', 'image/png'),
+  f('1RTOckEPcJntUcJCqTqKfbjTIEZfwzpIc', 'fefo_frame_12.png', 'image/png'),
+]
+
 /** Pasta: Intro geral da equipe (Quem Somos) */
 export const quemSomos = {
   texto: f('1Fh8q1DRq2frLjDsmerRqgF_M0AWHHGMA', 'Quem somos.txt', 'text/plain'),
@@ -122,4 +156,6 @@ export const allImages: DriveFile[] = [
   ...rebuilt.fotos,
   ...reefscape.fotos,
   ...Object.values(projetosImagens).flat(),
+  ...fefoVooDireita,
+  ...fefoVooEsquerda,
 ]

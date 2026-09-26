@@ -13,7 +13,7 @@ export function extOf(file: DriveFile) {
 }
 
 export function driveUrl(file: DriveFile, width = 1600) {
-  if (LOCAL) return `/drive/${file.id}.${extOf(file)}`
+  if (LOCAL) return `${import.meta.env.BASE_URL}drive/${file.id}.${extOf(file)}`
   return `https://lh3.googleusercontent.com/d/${file.id}=w${width}`
 }
 
