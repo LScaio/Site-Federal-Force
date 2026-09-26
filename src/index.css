@@ -1,0 +1,166 @@
+@import 'tailwindcss';
+
+@import '@fontsource-variable/inter-tight/index.css';
+@import '@fontsource/space-mono/400.css';
+@import '@fontsource/space-mono/700.css';
+/* Moodboard REBUILT: Bowlby One (títulos) · Archivo (texto) · Space Mono (rótulos) */
+@import '@fontsource/bowlby-one/400.css';
+@import '@fontsource/archivo/400.css';
+@import '@fontsource/archivo/600.css';
+@import '@fontsource/archivo/800.css';
+/* Moodboard REEFSCAPE: Rubik Black (títulos) */
+@import '@fontsource/rubik/900.css';
+@import '@fontsource/rubik/500.css';
+
+@theme {
+  /* Federal Force — telemetria / automobilismo */
+  --color-ff-void: #020305;
+  --color-ff-black: #05070b;
+  --color-ff-ink: #0a0e15;
+  --color-ff-panel: #0e131c;
+  --color-ff-blue: #2f7bff;
+  --color-ff-ice: #9fd0ff;
+  --color-ff-text: #e9eef5;
+  --color-ff-muted: #8793a4;
+  --color-ff-line: rgb(150 180 230 / 0.12);
+
+  /* REBUILT 2026 — "Paleta da temporada" do moodboard */
+  --color-rb-azul: #468292; /* Azul Ruína */
+  --color-rb-laranja: #fa4614; /* Laranja Base */
+  --color-rb-mostarda: #eaa906; /* Mostarda Bloco */
+  --color-rb-menta: #77dda7; /* Menta */
+  --color-rb-contorno: #111111; /* Contorno */
+  --color-rb-areia: #f9c468; /* Areia Sol */
+  --color-rb-duna: #da8832; /* Duna */
+  --color-rb-terra: #5a291b; /* Terra Escura */
+
+  /* REEFSCAPE 2025 — "Paleta da temporada" do moodboard */
+  --color-rf-rasa: #7fe4f6; /* Água Rasa */
+  --color-rf-oceano: #0088a5; /* Oceano */
+  --color-rf-coral: #ffe600; /* Amarelo Coral */
+  --color-rf-abismo: #111111; /* Abismo */
+  --color-rf-turquesa: #39d8ba; /* Turquesa Neon */
+  --color-rf-ambar: #cb803f; /* Âmbar */
+  --color-rf-anemona: #e85bc8; /* Rosa Anêmona */
+  --color-rf-profundo: #3f1a08; /* Fundo Profundo */
+
+  --font-display: 'Inter Tight Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter Tight Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+  --font-bowlby: 'Bowlby One', 'Archivo', sans-serif;
+  --font-archivo: 'Archivo', ui-sans-serif, sans-serif;
+  --font-rubik: 'Rubik', 'Archivo', sans-serif;
+
+  --ease-cine: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html {
+    background: var(--color-ff-void);
+    color: var(--color-ff-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  body {
+    font-family: var(--font-sans);
+    overflow-x: clip;
+  }
+  ::selection {
+    background: var(--color-ff-blue);
+    color: white;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ff-ice);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* Rótulo de telemetria */
+  .hud-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-ff-muted);
+  }
+  .hud-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    border: 1px solid var(--color-ff-line);
+    background: rgb(14 19 28 / 0.6);
+    backdrop-filter: blur(8px);
+    padding: 0.45rem 0.8rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-ff-text);
+  }
+  .hud-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--color-ff-blue);
+    box-shadow: 0 0 10px var(--color-ff-blue);
+  }
+  .scene {
+    position: relative;
+    min-height: 100svh;
+    isolation: isolate;
+  }
+  .grid-lines {
+    background-image:
+      linear-gradient(to right, var(--color-ff-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-ff-line) 1px, transparent 1px);
+    background-size: 80px 80px;
+  }
+
+  /* ---------- REBUILT: contorno preto grosso, blocos com sombra sólida, moldura tracejada ---------- */
+  .rb-block {
+    border: 3px solid var(--color-rb-contorno);
+    box-shadow: 8px 8px 0 var(--color-rb-contorno);
+  }
+  .rb-dashed {
+    outline: 2px dashed var(--color-rb-contorno);
+    outline-offset: 8px;
+  }
+  .rb-title {
+    font-family: var(--font-bowlby);
+    transform: skewX(-8deg);
+    line-height: 0.92;
+    letter-spacing: -0.01em;
+  }
+
+  /* ---------- REEFSCAPE: moldura preta arredondada, silhuetas chapadas, ondas e bolhas ---------- */
+  .rf-frame {
+    border: 4px solid var(--color-rf-abismo);
+    border-radius: 28px;
+    overflow: hidden;
+  }
+  .rf-title {
+    font-family: var(--font-rubik);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

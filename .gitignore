@@ -1,0 +1,7 @@
+node_modules
+dist
+*.local
+.DS_Store
+# Assets sincronizados do Drive (npm run sync:drive) e fontes brutas de CAD
+public/drive/
+cad-source/
