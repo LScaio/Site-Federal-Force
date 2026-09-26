@@ -5,3 +5,5 @@ dist
 # Assets sincronizados do Drive (npm run sync:drive) e fontes brutas de CAD
 public/drive/
 cad-source/
+# capturas de tela de testes locais
+/*.png
