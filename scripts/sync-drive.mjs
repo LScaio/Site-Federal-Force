@@ -4,7 +4,7 @@
  * src/content/drive.ts (pasta pública, sem credenciais).
  *
  *   npm run sync:drive            → imagens para public/drive/<id>.<ext>
- *   npm run sync:drive -- --cad   → também o CAD 3D da Hero (arquivo "CAAD3D") para cad-source/
+ *   npm run sync:drive -- --cad   → também o CAD 3D da Hero (Assembly final.obj + .mtl, com cores) para cad-source/
  *
  * Depois use VITE_DRIVE_SOURCE=local para servir as imagens localmente.
  */
@@ -62,11 +62,12 @@ await mkdir(path.join(root, 'public/drive'), { recursive: true })
 for (const e of images) await safeDownload(e, path.join(root, 'public/drive', `${e.id}.${ext(e.name)}`))
 
 if (withCad) {
-  const cad = entries.find((e) => e.mime === 'model/robot')
-  if (!cad) throw new Error('Entrada do CAD (mime model/robot) não encontrada em src/content/drive.ts')
+  // OBJ + MTL coloridos (padrão); --stl baixa também o STL sem cores (CAAD3D)
+  const mimes = process.argv.includes('--stl') ? ['model/robot', 'model/robot-stl'] : ['model/robot']
+  const cad = entries.filter((e) => mimes.includes(e.mime))
+  if (!cad.length) throw new Error('Entradas do CAD (mime model/robot) não encontradas em src/content/drive.ts')
   await mkdir(path.join(root, 'cad-source'), { recursive: true })
-  // O arquivo não tem extensão no Drive; o formato é detectado em `npm run cad:convert`.
-  await safeDownload(cad, path.join(root, 'cad-source', 'CAAD3D'))
+  for (const e of cad) await safeDownload(e, path.join(root, 'cad-source', e.name))
 }
 
 if (failures.length) {

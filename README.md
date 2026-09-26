@@ -16,7 +16,7 @@ Todo texto, imagem e modelo vem do Drive. Nada foi inventado.
 
 | Pasta do Drive | Uso no site | Arquivo no código |
 | --- | --- | --- |
-| `Hero(Telainicial)` | Logo, mascote Fefo (`CorujaFederal.png`), CAD 3D do robô (`CAAD3D`) | `src/content/drive.ts → hero` |
+| `Hero(Telainicial)` | Logo, mascote Fefo (`CorujaFederal.png`), CAD 3D do robô com cores (`Assembly final.obj` + `.mtl`) | `src/content/drive.ts → hero` |
 | `Intro geral da equipe` | Quem Somos: texto + mosaico de fotos | `quemSomos`, `quemSomosTexto` |
 | `FRC` | Seção FRC: texto, logo, imagens de arenas/robôs/equipes, vídeo do YouTube | `frc`, `frcTexto` |
 | `Equipe Rebuilt 2026` | Mini-site REBUILT: texto, fotos, **moodboard** (paleta, tipografia, linguagem visual) | `rebuilt`, `rebuiltTexto`, `src/index.css` (`rb-*`) |
@@ -36,18 +36,18 @@ VITE_DRIVE_SOURCE=local npm run build    # passa a usar /drive/<id>.<ext>
 
 ## CAD 3D (abertura, Hero e Visualizador usam o MESMO arquivo)
 
-A fonte é o arquivo `Hero(Telainicial)/CAAD3D` do Drive (218,6 MB, sem extensão). O tamanho é idêntico ao de `3D_Phoenix_Cinza.stl` e corresponde a um STL binário de 4.371.930 triângulos. O site espera o GLB otimizado em `public/models/federal-robot.glb`:
+A fonte é a exportação do Onshape `Hero(Telainicial)/Assembly final.obj` + `Assembly final.mtl` (937 MB, 10,4 milhões de triângulos, 76 materiais com cor). O GLB publicado tem 6,7 MB e cerca de 320 mil triângulos, com as cores do CAD. O `CAAD3D` (STL, sem cores) continua como alternativa.
 
 ```bash
-npm run sync:drive -- --cad     # baixa o CAAD3D para cad-source/
+npm run sync:drive -- --cad     # baixa Assembly final.obj + .mtl para cad-source/ (--stl: também o CAAD3D)
 npm run cad:convert -- --z-up   # detecta o formato e gera o GLB otimizado (~300 mil triângulos, meshopt)
 # npm run cad:convert -- --keep-parts   # preserva hierarquia/nomes para fichas por subsistema
 # npm run cad:convert -- --target 150000 # menos triângulos (arquivo menor)
-# sem --z-up se o robô aparecer deitado (STLs de CAD costumam vir com Z para cima)
+# --z-up é necessário: o Onshape exporta com Z para cima
 git add public/models/federal-robot.glb
 ```
 
-Teste com um STL sintético do mesmo tamanho: 218 MB → 7,2 MB, 300 mil triângulos, ~15 s. O conversor identifica o formato pelo conteúdo: GLB (inclusive já comprimido com Draco/meshopt), glTF, OBJ, STL ou ZIP contendo um deles. FBX/STEP não são suportados — nesse caso, exporte como GLB. Meta: GLB < 8 MB.
+O OBJ é lido em streaming e agrupado por material (as cores `Kd` do .mtl viram materiais PBR); a conversão leva ~45 s. O conversor identifica o formato pelo conteúdo: GLB (inclusive já comprimido com Draco/meshopt), glTF, OBJ, STL ou ZIP contendo um deles. FBX/STEP não são suportados — nesse caso, exporte como GLB. Meta: GLB < 8 MB.
 
 Enquanto o GLB não existe, a cena mostra uma **silhueta técnica provisória** (wireframe) e o visualizador indica `CAD · aguardando federal-robot.glb`.
 
@@ -64,7 +64,6 @@ Estes itens pedidos no briefing **não existem no Drive**. O código está pront
 - **Vídeos das temporadas** — não há vídeos nas pastas Rebuilt/Reefscape (o único vídeo é o link da FRC).
 - **Imagens dos projetos sociais** — as subpastas têm só o `.txt`. Os cards usam composição tipográfica.
 - **CAD da Reefscape (Griffo)** — não há CAD na pasta; o visualizador fica na temporada REBUILT.
-- **GLB** — o `CAAD3D` precisa ser convertido (ver seção CAD acima).
 - Revisão de texto sugerida no Drive (transcrito literalmente): em `Nossa temporada REEFSCAPE (2025).txt`, "Ele foi pensado para Climbar ele conseguia alcançar o último nível, sendo seu ponto mais forte" e "foi a prova de que uma estreia histórica em que…".
 
 ## Performance e acessibilidade

@@ -22,11 +22,13 @@ export const hero = {
   logo: f('1rjcPBt0-UpOM_9zLOQZn2-DQU72SIWFC', 'LogoFederal2.jpg'),
   fefo: f('1FiddOp3MBv_U3Tm1q6CMSFmFKp4I3Axa', 'CorujaFederal.png', 'image/png'),
   /**
-   * Modelo 3D do robô (arquivo "CAAD3D", sem extensão, 218.596.584 bytes).
-   * O tamanho é idêntico ao de "3D_Phoenix_Cinza.stl" (Rebuilt) e corresponde a um
-   * STL binário de 4.371.930 triângulos — fonte do federal-robot.glb.
+   * CAD 3D do robô com cores (exportação do Onshape): "Assembly final.obj" +
+   * "Assembly final.mtl" — fonte do federal-robot.glb.
    */
-  cad: f('1LB6MBACM4FQ2mHx5I28aEbvlJhG7juOp', 'CAAD3D', 'model/robot'),
+  cadObj: f('1FAlYHswuVxEGBEr3u8j415bdoqgXBgZH', 'Assembly final.obj', 'model/robot'),
+  cadMtl: f('1U_cKcNXoQoL9oYhUInWJ64Pe2HjY0skx', 'Assembly final.mtl', 'model/robot'),
+  /** Mesmo robô em STL binário, sem cores (arquivo "CAAD3D") — alternativa. */
+  cadStl: f('1LB6MBACM4FQ2mHx5I28aEbvlJhG7juOp', 'CAAD3D', 'model/robot-stl'),
 }
 
 /** Pasta: Intro geral da equipe (Quem Somos) */
