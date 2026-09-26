@@ -45,7 +45,7 @@ export function HorizontalGallery({ children, className = '' }: { children: Reac
     <div ref={wrap} className={`relative flex min-h-[100svh] flex-col justify-center overflow-hidden ${className}`}>
       <div
         ref={track}
-        className={`flex gap-6 px-5 md:gap-10 md:px-10 ${reduced ? 'overflow-x-auto snap-x snap-mandatory' : 'max-[899px]:overflow-x-auto max-[899px]:snap-x max-[899px]:snap-mandatory'} [scrollbar-width:none]`}
+        className={`flex scroll-px-5 gap-6 px-5 md:scroll-px-10 md:gap-10 md:px-10 ${reduced ? 'overflow-x-auto snap-x snap-mandatory' : 'max-[899px]:overflow-x-auto max-[899px]:snap-x max-[899px]:snap-mandatory'} [scrollbar-width:none]`}
       >
         {children}
       </div>

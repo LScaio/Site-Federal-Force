@@ -1,7 +1,9 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { SceneTitle, Reveal } from '../components/ui/Reveal'
 import { projetosTexto } from '../content/texts'
+import { projetosImagens, type DriveFile } from '../content/drive'
+import { DriveImage } from '../components/ui/DriveImage'
 import { useCoarsePointer, useReducedMotion } from '../lib/useReducedMotion'
 
 /** ALÉM DA ARENA — todos os projetos de Drive/Projetos_Sociais. */
@@ -17,13 +19,20 @@ export default function Beyond() {
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {projetosTexto.map((p, i) => (
             <Reveal key={p.id} delay={i * 0.1}>
-              <ProjectCard nome={p.nome} texto={p.texto} index={i} />
+              <ProjectCard nome={p.nome} texto={p.texto} index={i} imagens={projetosImagens[p.id] ?? []} />
             </Reveal>
           ))}
         </div>
       </div>
     </section>
   )
+}
+
+/** Enquadramento das artes verticais no card quadrado (centraliza logo/pessoas). */
+const ENQUADRAMENTO: Record<string, string> = {
+  '1sQzKtHSUQb_m5iCglUd9cgqPkWuAFj-3': 'center 64%', // Force Voice — logo
+  '1iAsN6nvdO7-dcksRun9CrThP5GH_0z0u': 'center 68%', // Rocket Force — equipe no lançamento
+  '1jQ7675amkkwmUkO5QeDHH9nol6SAJepH': 'center 55%', // STEAM Girls — retrato
 }
 
 function initials(nome: string) {
@@ -34,10 +43,18 @@ function initials(nome: string) {
     .toUpperCase()
 }
 
-function ProjectCard({ nome, texto, index }: { nome: string; texto: string; index: number }) {
+function ProjectCard({ nome, texto, index, imagens }: { nome: string; texto: string; index: number; imagens: DriveFile[] }) {
   const coarse = useCoarsePointer()
   const reduced = useReducedMotion()
   const [active, setActive] = useState(false)
+  const [slide, setSlide] = useState(0)
+
+  // Projetos com mais de uma imagem alternam suavemente entre elas (pausa ao abrir o card).
+  useEffect(() => {
+    if (imagens.length < 2 || reduced || active) return
+    const id = window.setInterval(() => setSlide((s) => (s + 1) % imagens.length), 4500)
+    return () => window.clearInterval(id)
+  }, [imagens.length, reduced, active])
   const ref = useRef<HTMLButtonElement>(null)
   const mx = useMotionValue(0)
   const my = useMotionValue(0)
@@ -78,16 +95,38 @@ function ProjectCard({ nome, texto, index }: { nome: string; texto: string; inde
           active ? 'border-ff-blue/60 shadow-[0_40px_80px_-30px_rgba(47,123,255,0.45)]' : 'border-ff-line'
         }`}
       >
-        {/* Fundo: tipografia monumental + grade, desfocado quando ativo */}
+        {/* Fundo: imagens do projeto (ou tipografia monumental), desfocado quando ativo */}
         <div
           className={`absolute inset-0 bg-[radial-gradient(120%_90%_at_20%_0%,#132341,#070a10_60%)] transition-[filter,transform] duration-700 ease-[var(--ease-cine)] ${
             active ? 'scale-110 blur-md' : 'scale-100 blur-0'
           }`}
         >
-          <div className="absolute inset-0 grid-lines opacity-40" />
-          <span className="absolute -bottom-[0.18em] -right-[0.05em] select-none font-display text-[12rem] font-bold leading-none tracking-[-0.06em] text-transparent [-webkit-text-stroke:1px_rgba(159,208,255,0.35)] md:text-[14rem]">
-            {initials(nome)}
-          </span>
+          {imagens.length > 0 ? (
+            imagens.map((file, k) => (
+              <div
+                key={file.id}
+                className={`absolute inset-0 transition-opacity duration-[1400ms] ${k === slide ? 'opacity-100' : 'opacity-0'}`}
+              >
+                <DriveImage
+                  file={file}
+                  alt={k === 0 ? `${nome} — Federal Force #10466` : ''}
+                  cover
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  objectPosition={ENQUADRAMENTO[file.id]}
+                  className="h-full w-full"
+                />
+              </div>
+            ))
+          ) : (
+            <>
+              <div className="absolute inset-0 grid-lines opacity-40" />
+              <span className="absolute -bottom-[0.18em] -right-[0.05em] select-none font-display text-[12rem] font-bold leading-none tracking-[-0.06em] text-transparent [-webkit-text-stroke:1px_rgba(159,208,255,0.35)] md:text-[14rem]">
+                {initials(nome)}
+              </span>
+            </>
+          )}
+          {/* leitura do título sobre a imagem */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/30" />
         </div>
         <div className={`absolute inset-0 bg-black/55 backdrop-blur-sm transition-opacity duration-700 ${active ? 'opacity-100' : 'opacity-0'}`} />
 

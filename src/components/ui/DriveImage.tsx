@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { DriveFile } from '../../content/drive'
 import { driveUrl, driveSrcSet, drivePlaceholder } from '../../lib/driveUrl'
 
@@ -13,18 +13,28 @@ type Props = {
   eager?: boolean
   /** Envolve a imagem em um container com blur-up progressivo. */
   cover?: boolean
+  /** Enquadramento da imagem no modo cover (CSS object-position). */
+  objectPosition?: string
 }
 
 /**
  * Imagem carregada diretamente do Drive "Dados_Site_Federal" com
  * carregamento progressivo: miniatura desfocada → imagem final.
  */
-export function DriveImage({ file, alt, className = '', imgClassName = '', width = 1600, sizes, eager, cover }: Props) {
+export function DriveImage({ file, alt, className = '', imgClassName = '', width = 1600, sizes, eager, cover, objectPosition }: Props) {
   const [loaded, setLoaded] = useState(false)
+  const ref = useRef<HTMLImageElement>(null)
+  // Imagens já em cache podem terminar de carregar antes do onLoad ser registrado.
+  useEffect(() => {
+    const img = ref.current
+    if (img?.complete && img.naturalWidth > 0) setLoaded(true)
+  }, [file.id])
   const placeholder = drivePlaceholder(file)
   const img = (
     <img
+      ref={ref}
       src={driveUrl(file, width)}
+      style={objectPosition ? { objectPosition } : undefined}
       srcSet={cover ? driveSrcSet(file) : undefined}
       sizes={cover ? sizes ?? '(min-width: 900px) 50vw, 100vw' : undefined}
       alt={alt}

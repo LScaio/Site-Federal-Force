@@ -3,7 +3,7 @@ import { hero, frc } from '../content/drive'
 import { contato, redesSociais } from '../content/texts'
 import { driveUrl } from '../lib/driveUrl'
 
-/** Rodapé minimalista — dados do Drive (redes sociais e contato aparecem quando cadastrados). */
+/** Rodapé minimalista — logo, Instagram, contato (quando cadastrado) e referência à FRC. */
 export default function Footer() {
   return (
     <footer id="rodape" data-scene="final" className="relative border-t border-ff-line bg-ff-void">
@@ -26,8 +26,21 @@ export default function Footer() {
             <ul className="mt-4 space-y-2">
               {redesSociais.map((r) => (
                 <li key={r.url}>
-                  <a href={r.url} target="_blank" rel="noopener noreferrer" className="text-ff-text/80 hover:text-ff-text">
-                    {r.rede}
+                  <a
+                    href={r.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-3 text-ff-text/80 transition-colors hover:text-ff-text"
+                    aria-label={`${r.rede} ${r.usuario}`}
+                  >
+                    {r.rede === 'Instagram' && (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden className="text-ff-blue transition-transform group-hover:scale-110">
+                        <rect x="3" y="3" width="18" height="18" rx="5" />
+                        <circle cx="12" cy="12" r="4.2" />
+                        <circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none" />
+                      </svg>
+                    )}
+                    <span className="font-display text-lg tracking-tight">{r.usuario}</span>
                   </a>
                 </li>
               ))}

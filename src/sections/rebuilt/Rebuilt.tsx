@@ -246,9 +246,9 @@ export default function Rebuilt() {
       {/* GALERIA */}
       <div id="rb-galeria" data-scene="rebuilt">
         <HorizontalGallery className="bg-rb-duna">
-          <div className="flex w-[80vw] shrink-0 snap-start flex-col justify-center md:w-[34vw]">
-            <Label>06 · Galeria</Label>
-            <h3 className="rb-title mt-6 text-[clamp(3rem,7vw,6rem)]">Descoberta</h3>
+          <div className="flex w-[80vw] shrink-0 snap-start flex-col justify-center pr-4 md:w-auto md:pr-10">
+            <Label className="self-start">06 · Galeria</Label>
+            <h3 className="rb-title mt-6 whitespace-nowrap text-[clamp(2.6rem,6vw,5.5rem)]">Descoberta</h3>
           </div>
           {rebuilt.fotos.map((f, k) => (
             <div key={f.id} className={`shrink-0 snap-center py-6 ${k % 2 ? 'md:mt-24' : ''}`}>

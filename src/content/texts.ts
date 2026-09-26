@@ -90,10 +90,11 @@ export type Parceiro = {
 export const parceiros: Parceiro[] = []
 
 /**
- * Rodapé — redes sociais e contato ainda não existem no Drive.
- * Os blocos só aparecem quando preenchidos a partir do Drive.
+ * Rodapé — Instagram informado pela equipe; contato aparece quando for cadastrado.
  */
-export const redesSociais: { rede: string; url: string }[] = []
+export const redesSociais: { rede: string; usuario: string; url: string }[] = [
+  { rede: 'Instagram', usuario: '@frc10466', url: 'https://www.instagram.com/frc10466/' },
+]
 export const contato: { rotulo: string; valor: string; href?: string }[] = []
 
 /** Frases definidas no briefing do projeto. */

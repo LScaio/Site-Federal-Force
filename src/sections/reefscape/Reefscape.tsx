@@ -286,9 +286,9 @@ export default function Reefscape() {
         {/* GALERIA */}
         <div id="rf-galeria" data-scene="reefscape">
           <HorizontalGallery className="bg-rf-profundo">
-            <div className="flex w-[80vw] shrink-0 snap-start flex-col justify-center md:w-[30vw]">
+            <div className="flex w-[80vw] shrink-0 snap-start flex-col justify-center pr-4 md:w-auto md:pr-10">
               <Pill className="w-fit bg-rf-rasa text-rf-abismo">06 · Galeria</Pill>
-              <h3 className="rf-title mt-6 text-[clamp(3rem,7vw,6rem)]">Exploração</h3>
+              <h3 className="rf-title mt-6 whitespace-nowrap text-[clamp(2.6rem,6vw,5.5rem)]">Exploração</h3>
             </div>
             {reefscape.fotos.map((f, k) => (
               <div key={f.id} className="shrink-0 snap-center py-6">

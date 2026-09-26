@@ -95,7 +95,17 @@ export const reefscape = {
   ],
 }
 
-/** Pasta: Projetos_Sociais (cada subpasta contém apenas o .txt do projeto) */
+/** Pasta: Projetos_Sociais — cada subpasta traz o .txt e as imagens do projeto */
+export const projetosImagens: Record<string, DriveFile[]> = {
+  'force-voice': [f('1sQzKtHSUQb_m5iCglUd9cgqPkWuAFj-3', '623645708_17900795445367083_1293901212451480459_n.jpg')],
+  'steam-girls': [
+    f('1ZPiacHTeF2kZcXtPXNaQN0uc9_B3fCRr', 'imgi_15_653540293_17907446658367083_2382056163712575871_n.jpg'),
+    f('1jQ7675amkkwmUkO5QeDHH9nol6SAJepH', 'imgi_27_621156702_17900077959367083_3078752728507338512_n.jpg'),
+  ],
+  'rocket-force': [f('1iAsN6nvdO7-dcksRun9CrThP5GH_0z0u', '610620300_17898434685367083_2055733492513703971_n.jpg')],
+}
+
+/** Textos dos projetos (Projetos_Sociais/<projeto>/<projeto>.txt) */
 export const projetos = {
   forceVoice: f('1GMTnV53My7d3pKvEMS5D0duqLZ4JqFlm', 'Force Voice/Force Voice.txt', 'text/plain'),
   steamGirls: f('15YWZQ53x9lEQ7VgrSNKplRtXfMEazD9V', 'STEAM Girls/STEAM Girls.txt', 'text/plain'),
@@ -111,4 +121,5 @@ export const allImages: DriveFile[] = [
   ...Object.values(frc.imagens),
   ...rebuilt.fotos,
   ...reefscape.fotos,
+  ...Object.values(projetosImagens).flat(),
 ]
