@@ -37,10 +37,14 @@ jobs:
         continue-on-error: true
         run: npm run sync:drive
 
+      # Caminho do site = nome ATUAL do repositório (GITHUB_REPOSITORY é lido na hora;
+      # github.event.* guardaria o nome antigo ao "executar novamente" após renomear).
       - name: Build
-        run: npm run build
+        run: |
+          export BASE_PATH="/${GITHUB_REPOSITORY#*/}/"
+          echo "BASE_PATH=$BASE_PATH"
+          npm run build
         env:
-          BASE_PATH: /${{ github.event.repository.name }}/
           VITE_DRIVE_SOURCE: ${{ steps.drive.outcome == 'success' && 'local' || 'drive' }}
 
       - uses: actions/configure-pages@v5
