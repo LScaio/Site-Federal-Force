@@ -37,26 +37,40 @@ async function exists(p) {
   }
 }
 
-async function download(entry, dest) {
+async function download(entry, dest, attempts = 4) {
   if (await exists(dest)) return console.log(`= ${entry.name}`)
-  const res = await fetch(url(entry.id), { redirect: 'follow' })
-  if (!res.ok || (res.headers.get('content-type') ?? '').includes('text/html')) {
-    throw new Error(`${entry.name}: HTTP ${res.status} ${res.headers.get('content-type')}`)
+  for (let i = 1; ; i++) {
+    try {
+      const res = await fetch(url(entry.id), { redirect: 'follow' })
+      if (!res.ok || (res.headers.get('content-type') ?? '').includes('text/html')) {
+        throw new Error(`HTTP ${res.status} ${res.headers.get('content-type')}`)
+      }
+      await pipeline(Readable.fromWeb(res.body), createWriteStream(dest))
+      return console.log(`↓ ${entry.name}`)
+    } catch (err) {
+      if (i >= attempts) throw new Error(`${entry.name}: ${err.message}`)
+      await new Promise((r) => setTimeout(r, 1500 * 2 ** (i - 1)))
+    }
   }
-  await pipeline(Readable.fromWeb(res.body), createWriteStream(dest))
-  console.log(`↓ ${entry.name}`)
 }
+
+const failures = []
+const safeDownload = (entry, dest) => download(entry, dest).catch((err) => failures.push(err.message))
 
 const images = entries.filter((e) => e.mime.startsWith('image/'))
 await mkdir(path.join(root, 'public/drive'), { recursive: true })
-for (const e of images) await download(e, path.join(root, 'public/drive', `${e.id}.${ext(e.name)}`))
+for (const e of images) await safeDownload(e, path.join(root, 'public/drive', `${e.id}.${ext(e.name)}`))
 
 if (withCad) {
   const cad = entries.find((e) => e.mime === 'model/robot')
   if (!cad) throw new Error('Entrada do CAD (mime model/robot) não encontrada em src/content/drive.ts')
   await mkdir(path.join(root, 'cad-source'), { recursive: true })
   // O arquivo não tem extensão no Drive; o formato é detectado em `npm run cad:convert`.
-  await download(cad, path.join(root, 'cad-source', 'CAAD3D'))
+  await safeDownload(cad, path.join(root, 'cad-source', 'CAAD3D'))
 }
 
+if (failures.length) {
+  console.error(`\n✗ ${failures.length} arquivo(s) falharam:\n  ${failures.join('\n  ')}`)
+  process.exit(1)
+}
 console.log(`\n✓ ${images.length} imagens${withCad ? ' + CAD' : ''} sincronizadas do Drive.`)

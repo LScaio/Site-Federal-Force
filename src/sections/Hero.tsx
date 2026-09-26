@@ -74,7 +74,7 @@ export default function Hero() {
   // Posição final do robô na Hero (desktop: à direita; mobile: centralizado, atrás do texto).
   const settle = useCallback(() => {
     const desk = isDesktop()
-    return { x: desk ? 1.45 : 0, y: desk ? 0 : 1.1, yaw: -0.55 }
+    return { x: desk ? 1.15 : 0, y: desk ? 0 : 1.1, yaw: -0.55 }
   }, [])
 
   useLayoutEffect(() => {

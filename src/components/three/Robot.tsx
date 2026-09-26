@@ -7,7 +7,7 @@ import { ROBOT_GLB_URL, checkRobotAsset } from './robotAsset'
 type GroupProps = ThreeElements['group']
 
 /** Tamanho (maior dimensão) em unidades de cena para o robô normalizado. */
-const TARGET_SIZE = 2.4
+const TARGET_SIZE = 2.15
 
 export function useRobotAvailable() {
   const [state, setState] = useState<'checking' | 'glb' | 'missing'>('checking')
