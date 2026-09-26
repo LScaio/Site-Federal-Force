@@ -7,3 +7,4 @@ public/drive/
 cad-source/
 # capturas de tela de testes locais
 /*.png
+*.tsbuildinfo
