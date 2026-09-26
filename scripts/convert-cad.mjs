@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 /**
- * Converte o CAD 3D do Drive (Hero(Telainicial)/CAD3D — arquivo sem extensão)
+ * Converte o CAD 3D do Drive (Hero(Telainicial)/CAAD3D — arquivo sem extensão)
  * no GLB otimizado usado pela abertura, pela Hero e pelo Visualizador CAD:
  *   public/models/federal-robot.glb
  *
- * Pré-requisito: `npm run sync:drive -- --cad` (ou copiar o arquivo para cad-source/CAD3D).
+ * Pré-requisito: `npm run sync:drive -- --cad` (ou copiar o arquivo para cad-source/CAAD3D).
  *
  * O formato é detectado pelo conteúdo: GLB, glTF, OBJ, STL (binário/ASCII) ou ZIP
  * contendo um desses. FBX/STEP não são suportados (exporte como GLB).
  *
  *   npm run cad:convert                    → máximo desempenho (malhas unidas, simplificadas, meshopt)
  *   npm run cad:convert -- --keep-parts    → preserva hierarquia/nomes (fichas de subsistemas)
- *   npm run cad:convert -- --ratio 0.15    → proporção de simplificação (padrão 0.25)
+ *   npm run cad:convert -- --ratio 0.15    → proporção de simplificação (padrão: automático, ~300 mil triângulos)
  *   npm run cad:convert -- --z-up          → gira modelos exportados com Z para cima
  *   npm run cad:convert -- --in caminho    → usa outro arquivo de entrada
  */
@@ -28,11 +28,13 @@ import draco3d from 'draco3dgltf'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
 const opt = (name, def) => (args.includes(name) ? args[args.indexOf(name) + 1] : def)
-const input = path.resolve(root, opt('--in', 'cad-source/CAD3D'))
+const input = path.resolve(root, opt('--in', 'cad-source/CAAD3D'))
 const out = path.join(root, 'public/models/federal-robot.glb')
 const keepParts = args.includes('--keep-parts')
 const zUp = args.includes('--z-up')
-const ratio = Number(opt('--ratio', '0.25'))
+const ratioArg = opt('--ratio', null)
+/** Meta de triângulos quando --ratio não é informado (bom equilíbrio entre detalhe e peso na web). */
+const TARGET_TRIANGLES = Number(opt('--target', '300000'))
 
 const mb = (n) => `${(n / 1024 / 1024).toFixed(1)} MB`
 
@@ -58,9 +60,10 @@ function stlToDocument(buf, binary) {
   if (binary) {
     const n = buf.readUInt32LE(80)
     positions = new Float32Array(n * 9)
-    for (let i = 0; i < n; i++) {
-      const o = 84 + i * 50 + 12
-      for (let k = 0; k < 9; k++) positions[i * 9 + k] = buf.readFloatLE(o + k * 4)
+    const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength)
+    for (let i = 0, o = 96; i < n; i++, o += 50) {
+      const j = i * 9
+      for (let k = 0; k < 9; k++) positions[j + k] = view.getFloat32(o + k * 4, true)
     }
   } else {
     const nums = [...buf.toString('latin1').matchAll(/vertex\s+(\S+)\s+(\S+)\s+(\S+)/g)].flatMap((m) => [+m[1], +m[2], +m[3]])
@@ -157,12 +160,24 @@ if (zUp) {
   scene.addChild(pivot)
 }
 
+const countTriangles = () =>
+  doc
+    .getRoot()
+    .listMeshes()
+    .flatMap((m) => m.listPrimitives())
+    .reduce((n, p) => n + (p.getIndices()?.getCount() ?? p.getAttribute('POSITION').getCount()) / 3, 0)
+const inputTris = countTriangles()
+const ratio = ratioArg ? Number(ratioArg) : Math.min(1, TARGET_TRIANGLES / Math.max(inputTris, 1))
+console.log(`• ${Math.round(inputTris).toLocaleString('pt-BR')} triângulos na entrada → simplificação ${(ratio * 100).toFixed(1)}%`)
+console.time('• otimização')
+
 await doc.transform(
   dedup(),
   weld(),
-  // gera normais suaves apenas onde faltam (ex.: STL)
+  simplify({ simplifier: MeshoptSimplifier, ratio, error: Number(opt('--error', '0.004')) }),
+  // gera normais suaves apenas onde faltam (ex.: STL) — depois da simplificação,
+  // para que as normais não travem a redução de vértices
   normals({ overwrite: false }),
-  simplify({ simplifier: MeshoptSimplifier, ratio, error: 0.0008 }),
   ...(keepParts ? [] : [flatten(), join()]),
   prune(),
   quantize(),
@@ -170,13 +185,10 @@ await doc.transform(
 )
 doc.createExtension(EXTMeshoptCompression).setRequired(true).setEncoderOptions({ method: EXTMeshoptCompression.EncoderMethod.QUANTIZE })
 
+console.timeEnd('• otimização')
 await mkdir(path.dirname(out), { recursive: true })
 await writeFile(out, await io.writeBinary(doc))
 const { size } = await stat(out)
-const tris = doc
-  .getRoot()
-  .listMeshes()
-  .flatMap((m) => m.listPrimitives())
-  .reduce((n, p) => n + (p.getIndices()?.getCount() ?? p.getAttribute('POSITION').getCount()) / 3, 0)
+const tris = countTriangles()
 console.log(`\n✓ ${path.relative(root, out)} — ${mb(size)} — ${Math.round(tris).toLocaleString('pt-BR')} triângulos`)
-if (size > 8 * 1024 * 1024) console.log('  Acima da meta de 8 MB: tente --ratio 0.15 (ou menor).')
+if (size > 8 * 1024 * 1024) console.log('  Acima da meta de 8 MB: tente --target 150000.')

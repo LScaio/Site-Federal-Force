@@ -21,8 +21,12 @@ export const DRIVE_ROOT_ID = '179G0wzGuSX73htOh8Kn2-ndZZP9iAn9R'
 export const hero = {
   logo: f('1rjcPBt0-UpOM_9zLOQZn2-DQU72SIWFC', 'LogoFederal2.jpg'),
   fefo: f('1FiddOp3MBv_U3Tm1q6CMSFmFKp4I3Axa', 'CorujaFederal.png', 'image/png'),
-  /** Modelo 3D do robô (arquivo "CAD3D", sem extensão, ~103 MB) — fonte do federal-robot.glb. */
-  cad: f('1SibU3tx3_0jstrymGGpW_Lq6KwyLBzvM', 'CAD3D', 'model/unknown'),
+  /**
+   * Modelo 3D do robô (arquivo "CAAD3D", sem extensão, 218.596.584 bytes).
+   * O tamanho é idêntico ao de "3D_Phoenix_Cinza.stl" (Rebuilt) e corresponde a um
+   * STL binário de 4.371.930 triângulos — fonte do federal-robot.glb.
+   */
+  cad: f('1LB6MBACM4FQ2mHx5I28aEbvlJhG7juOp', 'CAAD3D', 'model/robot'),
 }
 
 /** Pasta: Intro geral da equipe (Quem Somos) */
