@@ -12,7 +12,7 @@ export default function Beyond() {
     <section id="alem-da-arena" data-scene="alem-da-arena" className="scene flex items-center bg-ff-black py-28">
       <div className="mx-auto w-full max-w-[1400px] px-5 md:px-10">
         <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-end">
-          <SceneTitle index="07" kicker="Projetos" perch="alem-da-arena">
+          <SceneTitle index="03" kicker="Projetos" perch="alem-da-arena">
             Além da Arena
           </SceneTitle>
         </div>

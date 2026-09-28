@@ -39,7 +39,7 @@ export default function Frc() {
 
       <div className="relative z-10 mx-auto max-w-[1400px] px-5 pb-16 pt-32 md:px-10 md:pt-40">
         <div className="grid gap-10 lg:grid-cols-[1.3fr_1fr] lg:items-end">
-          <SceneTitle index="03" kicker="FIRST Robotics Competition" perch="frc">
+          <SceneTitle index="04" kicker="FIRST Robotics Competition" perch="frc">
             O que é a FIRST
             <br />
             Robotics Competition

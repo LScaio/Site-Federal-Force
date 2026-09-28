@@ -12,7 +12,7 @@ export default function Partners() {
   return (
     <section id="parceiros" data-scene="parceiros" className="scene flex items-center bg-ff-void py-28">
       <div className="mx-auto w-full max-w-[1400px] px-5 md:px-10">
-        <SceneTitle index="08" kicker="Ecossistema" perch="parceiros">
+        <SceneTitle index="06" kicker="Ecossistema" perch="parceiros">
           Parceiros
         </SceneTitle>
         <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">

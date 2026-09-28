@@ -1,13 +1,13 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap, ScrollTrigger, lockScroll, scrollToId } from '../lib/scroll'
 import { useReducedMotion } from '../lib/useReducedMotion'
-import { setIntroPhase, useIntroPhase } from '../lib/sceneStore'
+import { getIntroPhase, setIntroPhase, useIntroPhase } from '../lib/sceneStore'
 import { createRobotMotion } from '../components/three/robotMotion'
 import { DriveImage } from '../components/ui/DriveImage'
 import { hero } from '../content/drive'
 import { slogan } from '../content/texts'
 import { useNearViewport } from '../lib/useInViewOnce'
-import { isDeepLink } from '../lib/routes'
+import { openedAtRoot } from '../lib/router'
 
 const HeroScene = lazy(() => import('../components/three/HeroScene'))
 
@@ -79,6 +79,7 @@ export default function Hero() {
   }, [])
 
   useLayoutEffect(() => {
+    const skipIntro = !openedAtRoot || getIntroPhase() === 'done'
     const el = root.current
     if (!el) return
     const ctx = gsap.context(() => {
@@ -138,10 +139,11 @@ export default function Hero() {
         .to('.hero-reveal', { autoAlpha: 1, y: 0, duration: 1.1, stagger: 0.08, ease: 'expo.out' }, 'reveal+=0.7')
         .set('.intro-layer', { autoAlpha: 0 })
 
-      // Link direto para uma seção (ex.: /reefscape/galeria): sem abertura.
+      // Sem abertura quando o site foi aberto por um link direto (ex.: /frc) ou
+      // quando ela já foi vista (voltando de uma página de temporada).
       // Marca como pronto antes de saltar, senão o ponto de espera pelo CAD
       // (label "enter") pausaria a timeline no meio do salto.
-      if (isDeepLink) {
+      if (skipIntro) {
         readyRef.current = true
         tl.progress(1)
         setIntroPhase('done')

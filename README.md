@@ -20,22 +20,29 @@ O workflow `.github/workflows/deploy-pages.yml` faz o build e publica o site a c
 
 Endereço final: **https://lscaio.github.io/SiteFederalForce/** — e as seções, por exemplo, `https://lscaio.github.io/SiteFederalForce/reefscape/galeria`.
 
-## Endereços das seções
+## Páginas e endereços
 
-Cada seção tem um endereço próprio. Abrir um deles pula a abertura e rola direto até a seção; durante a navegação a URL acompanha a seção visível, e voltar/avançar funciona. Maiúsculas e acentos são aceitos (`/Reefscape/Galeria`, `/rebuilt/Robô`).
+O site tem três páginas. Abrir qualquer endereço leva direto à seção (a abertura só roda em `/`); a URL acompanha a rolagem e voltar/avançar funciona. Maiúsculas e acentos são aceitos (`/Reefscape/Galeria`, `/rebuilt/Robô`).
+
+**Início** — Hero → Quem Somos → Além da Arena → FRC → Nossa Evolução → (Parceiros) → Final
 
 | Endereço | Seção |
 | --- | --- |
 | `/` | Abertura + Hero |
-| `/quem-somos` | Quem Somos |
-| `/frc` | O que é a FRC |
-| `/rebuilt` · `/rebuilt/historia` · `/desafio` · `/robo` · `/estrategia` · `/resultados` · `/galeria` · `/cad` | Temporada Rebuilt |
-| `/reefscape` · `/reefscape/historia` · `/desafio` · `/robo` · `/estrategia` · `/resultados` · `/galeria` | Temporada Reefscape |
-| `/evolucao` | Nossa Evolução |
+| `/quem-somos` (ou `/temporadas`) | Quem Somos, com o botão **“Conheça as nossas temporadas”** |
 | `/alem-da-arena` (ou `/projetos`) | Projetos sociais |
+| `/frc` | O que é a FRC |
+| `/evolucao` | Nossa Evolução (os nomes das temporadas levam às páginas delas) |
 | `/final` (ou `/contato`) | Cena final + rodapé |
 
-Rotas definidas em `src/lib/routes.ts`. Como é um SPA, o servidor precisa devolver `index.html` para qualquer caminho: o projeto já inclui `public/_redirects` (Netlify), `vercel.json` (Vercel) e gera `dist/404.html` no build (GitHub Pages). Para hospedar em subpasta: `BASE_PATH=/SiteFederalForce/ npm run build`.
+**Temporadas (páginas próprias, com botão Voltar no topo e no fim)**
+
+| Endereço | Página |
+| --- | --- |
+| `/rebuilt` · `/rebuilt/historia` · `/desafio` · `/robo` · `/estrategia` · `/resultados` · `/galeria` · `/cad` | Temporada Rebuilt 2026 |
+| `/reefscape` · `/reefscape/historia` · `/desafio` · `/robo` · `/estrategia` · `/resultados` · `/galeria` | Temporada Reefscape 2025 |
+
+O botão “Conheça as nossas temporadas” abre um seletor com as duas temporadas, cada uma estilizada pelo seu moodboard (`src/components/ui/SeasonPicker.tsx`). Rotas em `src/lib/routes.ts`, navegação em `src/lib/router.ts`. Como é um SPA, o servidor precisa devolver `index.html` para qualquer caminho: o projeto inclui `public/_redirects` (Netlify), `vercel.json` (Vercel) e gera `dist/404.html` no build (GitHub Pages).
 
 ## Fefo (mascote)
 

@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion'
 import { useReducedMotion } from '../lib/useReducedMotion'
 import { Perch } from '../components/ui/Perch'
+import { navigate } from '../lib/router'
 
 /**
  * NOSSA EVOLUÇÃO — pausa narrativa entre as temporadas e os projetos sociais.
@@ -11,6 +12,7 @@ const nodes = [
   {
     ano: '2025',
     jogo: 'REEFSCAPE',
+    rota: 'rf-inicio',
     robo: 'Griffo',
     linhas: ['Primeira temporada na FRC', 'Regional de Brasília · FIRST Championship, Houston', 'Rookie All-Star Award'],
     cor: '#FFE600',
@@ -18,6 +20,7 @@ const nodes = [
   {
     ano: '2026',
     jogo: 'REBUILT',
+    rota: 'rb-inicio',
     robo: 'Phoenix',
     linhas: ['Kickoff em 10 de janeiro', 'Intake + shooter', 'Média de 7 bolinhas no autônomo'],
     cor: '#FA4614',
@@ -25,6 +28,7 @@ const nodes = [
   {
     ano: '→',
     jogo: 'PRÓXIMA TEMPORADA',
+    rota: '',
     robo: '',
     linhas: [],
     cor: '#2f7bff',
@@ -48,7 +52,12 @@ function Node({ n, i, progress }: { n: (typeof nodes)[number]; i: number; progre
         {future ? (
           <span className="text-transparent [-webkit-text-stroke:1px_rgb(233_238_245_/_0.7)]">{n.jogo}</span>
         ) : (
-          n.jogo
+          <button type="button" onClick={() => navigate(n.rota)} className="group text-left transition-colors hover:text-ff-ice">
+            {n.jogo}
+            <span className="ml-3 inline-block align-middle font-mono text-[0.62rem] tracking-[0.2em] text-ff-muted transition-transform group-hover:translate-x-1">
+              VER →
+            </span>
+          </button>
         )}
       </p>
       {n.robo && (
@@ -86,7 +95,7 @@ export default function Evolution() {
         <div className="pointer-events-none absolute inset-0 grid-lines opacity-25" />
         <div className="relative mx-auto w-full max-w-[1400px] px-5 md:px-10">
           <div className="mb-5 flex items-center gap-3">
-            <span className="font-mono text-xs text-ff-blue">06</span>
+            <span className="font-mono text-xs text-ff-blue">05</span>
             <span className="h-px w-10 bg-ff-line" />
             <span className="hud-label">Nossa Evolução</span>
           </div>

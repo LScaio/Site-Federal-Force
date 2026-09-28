@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { useIntroPhase, useScene } from '../../lib/sceneStore'
-import { scrollToId } from '../../lib/scroll'
+import { goBack, navigate } from '../../lib/router'
+import type { Page } from '../../lib/routes'
 import { DriveImage } from './DriveImage'
 import { hero } from '../../content/drive'
 
 export type SceneLink = { id: string; label: string }
 
 /** Barra superior + trilho lateral de cenas, em estilo de telemetria. */
-export function Hud({ scenes }: { scenes: SceneLink[] }) {
+export function Hud({ scenes, page }: { scenes: SceneLink[]; page: Page }) {
   const scene = useScene()
   const intro = useIntroPhase()
   const bar = useRef<HTMLDivElement>(null)
@@ -28,8 +29,9 @@ export function Hud({ scenes }: { scenes: SceneLink[] }) {
   const visible = intro !== 'intro'
   const go = (id: string) => {
     setOpen(false)
-    scrollToId(id)
+    navigate(id)
   }
+  const onSeason = page !== 'home'
 
   return (
     <>
@@ -45,18 +47,30 @@ export function Hud({ scenes }: { scenes: SceneLink[] }) {
             </span>
             <span className="hidden font-mono text-[0.7rem] tracking-[0.2em] text-ff-text sm:block">FEDERAL FORCE #10466</span>
           </button>
-          <button
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            className="hud-chip hover:border-ff-blue/60"
-            aria-expanded={open}
-            aria-controls="scene-menu"
-          >
-            <span className="tabular-nums text-ff-blue">{String(idx + 1).padStart(2, '0')}</span>
-            <span className="text-ff-muted">/{String(scenes.length).padStart(2, '0')}</span>
-            <span className="hidden sm:inline">{scenes[idx]?.label}</span>
-            <span className="ml-1">{open ? '×' : '≡'}</span>
-          </button>
+          {onSeason ? (
+            // Páginas de temporada: botão de voltar no lugar do menu de cenas.
+            <div className="flex items-center gap-2">
+              <span className="hud-chip hidden sm:inline-flex">
+                <span className="hud-dot" /> Temporada {page === 'rebuilt' ? 'Rebuilt 2026' : 'Reefscape 2025'}
+              </span>
+              <button type="button" onClick={goBack} className="hud-chip border-ff-blue/60 bg-ff-blue/90 text-white hover:bg-ff-blue">
+                <span aria-hidden>←</span> Voltar
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setOpen((o) => !o)}
+              className="hud-chip hover:border-ff-blue/60"
+              aria-expanded={open}
+              aria-controls="scene-menu"
+            >
+              <span className="tabular-nums text-ff-blue">{String(idx + 1).padStart(2, '0')}</span>
+              <span className="text-ff-muted">/{String(scenes.length).padStart(2, '0')}</span>
+              <span className="hidden sm:inline">{scenes[idx]?.label}</span>
+              <span className="ml-1">{open ? '×' : '≡'}</span>
+            </button>
+          )}
         </div>
         <div className="h-px w-full bg-ff-line">
           <div ref={bar} className="h-px origin-left bg-ff-blue" style={{ transform: 'scaleX(0)' }} />
@@ -67,9 +81,9 @@ export function Hud({ scenes }: { scenes: SceneLink[] }) {
       <nav
         id="scene-menu"
         className={`fixed inset-0 z-40 bg-ff-void/85 backdrop-blur-xl transition-opacity duration-500 ${
-          open ? 'opacity-100' : 'pointer-events-none opacity-0'
+          open && !onSeason ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
-        aria-hidden={!open}
+        aria-hidden={!open || onSeason}
       >
         <ol className="mx-auto flex h-full max-w-[1400px] flex-col justify-center gap-1 px-6 md:px-10">
           {scenes.map((s, i) => (
@@ -93,7 +107,7 @@ export function Hud({ scenes }: { scenes: SceneLink[] }) {
       {/* Trilho lateral (desktop) */}
       <div
         className={`fixed right-6 top-1/2 z-40 hidden -translate-y-1/2 flex-col gap-3 transition-opacity duration-700 lg:flex ${
-          visible && !open && !/^(rebuilt|reefscape)/.test(scene) ? 'opacity-100' : 'pointer-events-none opacity-0'
+          visible && !open && !onSeason ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       >
         {scenes.map((s, i) => (

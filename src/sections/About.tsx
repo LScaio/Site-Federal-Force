@@ -5,6 +5,7 @@ import { DriveImage } from '../components/ui/DriveImage'
 import { quemSomos } from '../content/drive'
 import { quemSomosTexto } from '../content/texts'
 import { useReducedMotion } from '../lib/useReducedMotion'
+import { SeasonPickerButton } from '../components/ui/SeasonPicker'
 
 /** Mosaico: posições em grid de 6 colunas; cada coluna desliza em velocidade própria. */
 const tiles = [
@@ -43,6 +44,9 @@ export default function About() {
             </span>
             <span className="hud-chip">Brazil</span>
             <span className="hud-chip">FIRST Robotics Competition</span>
+          </Reveal>
+          <Reveal delay={0.35}>
+            <SeasonPickerButton />
           </Reveal>
         </div>
 

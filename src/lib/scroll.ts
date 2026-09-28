@@ -41,4 +41,11 @@ export function scrollToId(id: string, { push = true, immediate = false } = {}) 
   return true
 }
 
+export function scrollToTop() {
+  if (lenis) {
+    lenis.resize()
+    lenis.scrollTo(0, { immediate: true, force: true })
+  } else window.scrollTo(0, 0)
+}
+
 export { gsap, ScrollTrigger }

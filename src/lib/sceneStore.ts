@@ -29,6 +29,8 @@ const subscribe = (l: () => void) => {
 export function useScene() {
   return useSyncExternalStore(subscribe, () => state.scene, () => state.scene)
 }
+export const getIntroPhase = () => state.intro
+
 export function useIntroPhase() {
   return useSyncExternalStore(subscribe, () => state.intro, () => state.intro)
 }
