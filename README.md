@@ -46,7 +46,13 @@ O botão “Conheça as nossas temporadas” abre um seletor com as duas tempora
 
 ## Fefo (mascote)
 
-Animação quadro a quadro com os frames de `Hero(Telainicial)/AnimaçãoCorujaDireita` e `/AnimaçãoCorujaEsquerda` (01 pousado · 02–03 decolagem · 04–08 voo · 09–12 pouso). Ele atravessa a Hero e pousa sobre o robô; na rolagem, decola, voa em arco e pousa no fim da primeira linha dos títulos marcados com `<Perch id="…" />`. Pousado, acompanha o título; só voa quando muda de poleiro. Física e máquina de estados em `src/components/ui/fefoFlight.ts`, validadas por `npm run test:fefo`.
+Animação quadro a quadro feita a partir do vídeo **Coruja_Decolagem** (postura heroica → flexão das pernas → asas abrindo → impulso → batida descendente / asas voltando / voo estável → desaceleração → garras estendidas → toque no chão → retorno à pose). A coruja foi recortada do fundo e os quadros de cada fase viraram um atlas por sentido em `public/fefo/` (`fefo-esq.webp`, `fefo-dir.webp`), gerados por:
+
+```bash
+python3 scripts/fefo-atlas.py caminho/Coruja_Decolagem_1.mp4   # requer ffmpeg + numpy, scipy, pillow
+```
+
+Ele atravessa a Hero e pousa sobre o robô; na rolagem, decola, voa em arco batendo as asas, estende as garras ao se aproximar e só toca o chão ao chegar no fim da primeira linha dos títulos marcados com `<Perch id="…" />`. Pousado, acompanha o título; só voa quando muda de poleiro. Física e máquina de estados em `src/components/ui/fefoFlight.ts`, validadas por `npm run test:fefo`.
 
 ## Fonte única de conteúdo: Drive "Dados_Site_Federal"
 

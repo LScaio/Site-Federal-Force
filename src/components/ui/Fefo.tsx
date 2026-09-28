@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useIntroPhase, useScene } from '../../lib/sceneStore'
 import { useReducedMotion } from '../../lib/useReducedMotion'
-import { driveUrl } from '../../lib/driveUrl'
-import { fefoVooDireita, fefoVooEsquerda } from '../../content/drive'
-import { FefoFlight, type Dir, type Target } from './fefoFlight'
+import { FefoFlight, FRAME_COUNT, type Dir, type Target } from './fefoFlight'
 
 /**
- * Fefo — mascote da Federal Force, animado quadro a quadro com os frames de
- * Hero(Telainicial)/AnimaçãoCorujaDireita e /AnimaçãoCorujaEsquerda.
+ * Fefo — mascote da Federal Force, animado quadro a quadro com os quadros do
+ * vídeo "Coruja_Decolagem" (um atlas por sentido em public/fefo/, gerado por
+ * scripts/fefo-atlas.py).
  *
  * Atravessa a Hero ao fim da abertura e pousa sobre o robô; durante a rolagem
  * decola, voa em arco e pousa no fim da primeira linha dos títulos marcados com
@@ -16,22 +15,22 @@ import { FefoFlight, type Dir, type Target } from './fefoFlight'
  * A física/máquina de estados está em ./fefoFlight.ts.
  */
 
-const RATIO = 341 / 384
+/** Geometria do atlas (ver scripts/fefo-atlas.py). */
+const ATLAS = { fw: 324, fh: 300, cols: 8 }
+const RATIO = ATLAS.fh / ATLAS.fw
+/** Linha dos pés no quadro pousado (fração da altura); a coruja fica centrada na largura. */
+const FOOT_Y = 0.957
+/** Altura da coruja pousada (fração da altura do quadro). */
+const OWL_H = 0.62
 
-function loadFrames(files: typeof fefoVooDireita) {
-  return Promise.all(
-    files.map(
-      (f) =>
-        new Promise<HTMLImageElement>((resolve, reject) => {
-          const img = new Image()
-          img.decoding = 'async'
-          img.referrerPolicy = 'no-referrer'
-          img.onload = () => resolve(img)
-          img.onerror = reject
-          img.src = driveUrl(f, 384)
-        }),
-    ),
-  )
+function loadAtlas(dir: Dir) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image()
+    img.decoding = 'async'
+    img.onload = () => resolve(img)
+    img.onerror = reject
+    img.src = `${import.meta.env.BASE_URL}fefo/fefo-${dir}.webp`
+  })
 }
 
 export function Fefo() {
@@ -40,14 +39,14 @@ export function Fefo() {
   const reduced = useReducedMotion()
   const wrap = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
-  const [frames, setFrames] = useState<Record<Dir, HTMLImageElement[]> | null>(null)
+  const [frames, setFrames] = useState<Record<Dir, HTMLImageElement> | null>(null)
 
   const sceneRef = useRef(scene)
   sceneRef.current = scene
 
   useEffect(() => {
     let alive = true
-    Promise.all([loadFrames(fefoVooDireita), loadFrames(fefoVooEsquerda)])
+    Promise.all([loadAtlas('dir'), loadAtlas('esq')])
       .then(([dir, esq]) => alive && setFrames({ dir, esq }))
       .catch(() => {})
     return () => {
@@ -66,7 +65,7 @@ export function Fefo() {
     let H = 0
     let drawn = ''
     const resize = () => {
-      W = window.innerWidth < 768 ? 74 : 112
+      W = window.innerWidth < 768 ? 112 : 168
       H = Math.round(W * RATIO)
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
       cv.width = Math.round(W * dpr)
@@ -78,8 +77,9 @@ export function Fefo() {
     }
     resize()
 
-    const sim = new FefoFlight(-W, window.innerHeight * 0.3, Math.max(70, W * 0.7))
-    const clampX = (px: number, vw: number) => Math.min(Math.max(px, W / 2 + 8), vw - W / 2 - 8)
+    const sim = new FefoFlight(-W, window.innerHeight * 0.3, Math.max(70, W * 0.5))
+    // O quadro tem folga para as asas abertas; a coruja pousada ocupa ~metade da largura.
+    const clampX = (px: number, vw: number) => Math.min(Math.max(px, W * 0.28 + 8), vw - W * 0.28 - 8)
 
     /** Alvo = ponto onde os pés do Fefo tocam (base central do sprite). */
     const findTarget = (): Target => {
@@ -105,10 +105,10 @@ export function Fefo() {
           const right = Math.max(...line.map((q) => q.right))
           const y = r.top - (lastTop - firstTop)
           // Sob o header fixo não dá para pousar: recolhe-se ao canto.
-          if (y - H > 76) return { key, x: clampX(right - W * 0.32, vw), y }
-        } else if (r.top - H > 76) return { key, x: clampX(r.left, vw), y: r.top }
+          if (y - H * OWL_H > 76) return { key, x: clampX(right - W * 0.22, vw), y }
+        } else if (r.top - H * OWL_H > 76) return { key, x: clampX(r.left, vw), y: r.top }
       }
-      return { key: 'rest', x: vw - W / 2 - (vw < 768 ? 12 : 26), y: vh - (vw < 768 ? 12 : 22) }
+      return { key: 'rest', x: vw - W * 0.28 - (vw < 768 ? 10 : 22), y: vh - (vw < 768 ? 12 : 22) }
     }
 
     const draw = () => {
@@ -116,7 +116,9 @@ export function Fefo() {
       if (key === drawn) return
       drawn = key
       ctx.clearRect(0, 0, W, H)
-      ctx.drawImage(frames[sim.dir][sim.frame], 0, 0, W, H)
+      const f = Math.min(sim.frame, FRAME_COUNT - 1)
+      const { fw, fh, cols } = ATLAS
+      ctx.drawImage(frames[sim.dir], (f % cols) * fw, Math.floor(f / cols) * fh, fw, fh, 0, 0, W, H)
     }
 
     let last = performance.now()
@@ -130,7 +132,7 @@ export function Fefo() {
 
       const bob = sim.mode === 'perched' && !reduced ? Math.sin(now / 700) * 1.2 : 0
       const tilt = sim.mode === 'perched' ? 0 : sim.tilt
-      el.style.transform = `translate3d(${(sim.x - W / 2).toFixed(1)}px, ${(sim.y + sim.arc - H + bob).toFixed(1)}px, 0) rotate(${tilt.toFixed(2)}deg)`
+      el.style.transform = `translate3d(${(sim.x - W / 2).toFixed(1)}px, ${(sim.y + sim.arc - H * FOOT_Y + bob).toFixed(1)}px, 0) rotate(${tilt.toFixed(2)}deg)`
       el.style.opacity = '1'
       el.dataset.mode = sim.mode
       draw()
@@ -153,7 +155,7 @@ export function Fefo() {
       aria-hidden
       data-fefo
       className="pointer-events-none fixed left-0 top-0 z-[45] opacity-0 transition-opacity duration-500 will-change-transform"
-      style={{ transformOrigin: '50% 100%' }}
+      style={{ transformOrigin: `50% ${FOOT_Y * 100}%` }}
     >
       <canvas ref={canvas} className="block drop-shadow-[0_10px_18px_rgba(0,0,0,0.5)]" />
     </div>

@@ -1,21 +1,31 @@
 /**
  * Física e máquina de estados do voo do Fefo — sem DOM, testável isoladamente
- * (ver scripts/test-fefo.mjs).
+ * (ver scripts/test-fefo.mts).
  *
- *   perched ──(alvo mudou)──▶ takeoff (frames 02–03) ──▶ flying (04–08 em loop)
- *      ▲                                                     │ (perto do alvo)
- *      └──────────────── landing (09–12) ◀───────────────────┘
+ *   perched ──(alvo mudou)──▶ takeoff ──▶ flying (bater de asas em loop)
+ *      ▲                                        │ (perto do alvo)
+ *      └──── landing: aproximação → toque no chão → retorno à pose
+ *
+ * Os quadros vêm do vídeo "Coruja_Decolagem" (atlas em public/fefo/, gerado por
+ * scripts/fefo-atlas.py): flexão das pernas → asas abrindo → impulso;
+ * batida descendente / asas voltando / voo estável; desaceleração → garras
+ * estendidas; toque no chão → retorno à pose.
  */
 
 export type Mode = 'hidden' | 'perched' | 'takeoff' | 'flying' | 'landing'
 export type Dir = 'dir' | 'esq'
 export type Target = { key: string; x: number; y: number }
 
-export const TAKEOFF = [1, 2] // frames 02–03
-export const FLAP = [3, 4, 5, 6, 7] // frames 04–08
-export const LANDING = [8, 9, 10, 11] // frames 09–12
-export const PERCHED = 11 // frame 12
-const FRAME_MS = { takeoff: 110, flying: 82, landing: 115 }
+const range = (from: number, n: number) => Array.from({ length: n }, (_, i) => from + i)
+export const TAKEOFF = range(0, 12)
+export const FLAP = range(12, 12)
+/** aproximação (desaceleração + garras estendidas) seguida do toque no chão */
+const APPROACH = range(24, 15)
+const TOUCHDOWN = range(39, 12)
+export const LANDING = [...APPROACH, ...TOUCHDOWN]
+export const PERCHED = LANDING[LANDING.length - 1]
+export const FRAME_COUNT = PERCHED + 1
+const FRAME_MS = { takeoff: 45, flying: 58, landing: 42 }
 const MAX_SPEED = 950
 const SUBSTEP = 1 / 120
 
@@ -34,6 +44,7 @@ export class FefoFlight {
   private clock = 0
   private startDist = 1
   private key = ''
+  private touching = false
 
   /** raio de início do pouso (px) — depende do tamanho do sprite */
   private landingRadius: number
@@ -47,6 +58,7 @@ export class FefoFlight {
   /** Posiciona direto no alvo, sem voo (prefers-reduced-motion). */
   snap(t: Target) {
     this.mode = 'perched'
+    this.touching = false
     this.key = t.key
     this.x = t.x
     this.y = t.y
@@ -72,6 +84,7 @@ export class FefoFlight {
         }
         this.dir = t.x >= this.x ? 'dir' : 'esq'
         this.mode = 'takeoff'
+        this.touching = false
         this.step = 0
         this.clock = 0
         this.frame = TAKEOFF[0]
@@ -87,6 +100,7 @@ export class FefoFlight {
       if (this.mode === 'landing') {
         this.mode = 'flying'
         this.step = 0
+        this.touching = false
       }
     }
 
@@ -107,7 +121,15 @@ export class FefoFlight {
       if (this.mode === 'takeoff') this.y -= 70 * h
     }
 
-    const dist = Math.hypot(t.x - this.x, t.y - this.y)
+    let dist = Math.hypot(t.x - this.x, t.y - this.y)
+    if (this.mode === 'landing' && !this.touching && dist < 6 && Math.hypot(this.vx, this.vy) < 120) this.touching = true
+    if (this.touching) {
+      // no chão: acompanha o poleiro enquanto recolhe as asas
+      this.x = t.x
+      this.y = t.y
+      this.vx = this.vy = 0
+      dist = 0
+    }
     if (Math.abs(this.vx) > 60) this.dir = this.vx > 0 ? 'dir' : 'esq'
 
     // frames
@@ -119,8 +141,10 @@ export class FefoFlight {
       if (this.mode === 'takeoff' && this.step >= TAKEOFF.length) {
         this.mode = 'flying'
         this.step = 0
-      } else if (this.mode === 'landing' && this.step >= LANDING.length) {
-        this.step = LANDING.length - 1
+      } else if (this.mode === 'landing') {
+        // Só toca o chão quando chega ao poleiro: até lá, garras estendidas.
+        if (this.step >= APPROACH.length && !this.touching) this.step = APPROACH.length - 1
+        if (this.step >= LANDING.length) this.step = LANDING.length - 1
       }
     }
     if (this.mode === 'flying' && dist < this.landingRadius) {
@@ -135,7 +159,7 @@ export class FefoFlight {
           ? LANDING[this.step]
           : FLAP[this.step % FLAP.length]
 
-    if (this.mode === 'landing' && this.step === LANDING.length - 1 && dist < 6 && Math.hypot(this.vx, this.vy) < 120) {
+    if (this.mode === 'landing' && this.touching && this.step === LANDING.length - 1) {
       this.snap(t)
       return
     }
